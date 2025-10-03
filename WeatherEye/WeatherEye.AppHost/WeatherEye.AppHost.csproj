@@ -11,6 +11,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\WeatherEye.AlertProvider\WeatherEye.AlertProvider.csproj" />
     <ProjectReference Include="..\WeatherEye.ApiService\WeatherEye.ApiService.csproj" />
     <ProjectReference Include="..\WeatherEye.Web\WeatherEye.Web.csproj" />
   </ItemGroup>
