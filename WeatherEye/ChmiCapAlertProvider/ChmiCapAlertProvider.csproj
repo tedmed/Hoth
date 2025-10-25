@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+	<PropertyGroup>
+		<TargetFramework>net9.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<UserSecretsId>dotnet-ChmiCapAlertProvider-db031590-b844-45d9-a927-03eef75e2fca</UserSecretsId>
+		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Aspire.Npgsql" Version="9.5.2" />
+		<PackageReference Include="DevExpress.Xpo" Version="25.1.6" />
+		<PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.10" />
+		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.22.1" />
+		<PackageReference Include="RestSharp" Version="112.1.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\CAP\CAP.csproj" />
+		<ProjectReference Include="..\WeatherEye.ServiceDefaults\WeatherEye.ServiceDefaults.csproj" />
+		<PackageReference Include="WolverineFx" Version="5.0.0" />
+		<PackageReference Include="WolverineFx.RabbitMQ" Version="5.0.0" />
+	</ItemGroup>
+</Project>

@@ -1,4 +1,4 @@
-namespace WeatherEye.AlertProvider;
+namespace WeatherEye.API;
 
 public class WeatherForecast
 {

@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace WeatherEye.AlertProvider.Controllers;
+namespace WeatherEye.API.Controllers;
 
 [ApiController]
 [Route("[controller]")]

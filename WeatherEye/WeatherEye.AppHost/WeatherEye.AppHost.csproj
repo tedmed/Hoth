@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <Sdk Name="Aspire.AppHost.Sdk" Version="9.3.1" />
+  <Sdk Name="Aspire.AppHost.Sdk" Version="9.5.2" />
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -11,7 +11,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\WeatherEye.AlertProvider\WeatherEye.AlertProvider.csproj" />
+    <ProjectReference Include="..\ChmiCapAlertProvider\ChmiCapAlertProvider.csproj" />
+    <ProjectReference Include="..\WeatherEye.AlertProvider\WeatherEye.API.csproj" />
     <ProjectReference Include="..\WeatherEye.ApiService\WeatherEye.ApiService.csproj" />
     <ProjectReference Include="..\WeatherEye.Web\WeatherEye.Web.csproj" />
   </ItemGroup>
@@ -19,7 +20,10 @@
   <ItemGroup>
     <PackageReference Include="Aspire.Hosting.AppHost" Version="9.5.2" />
     <PackageReference Include="Aspire.Hosting.Keycloak" Version="9.5.2-preview.1.25522.3" />
+    <PackageReference Include="Aspire.Hosting.PostgreSQL" Version="9.5.2" />
+    <PackageReference Include="Aspire.Hosting.RabbitMQ" Version="9.5.2" />
     <PackageReference Include="Aspire.Hosting.Redis" Version="9.5.2" />
+    <PackageReference Include="Keycloak.AuthServices.Aspire.Hosting" Version="0.2.0" />
   </ItemGroup>
 
 </Project>

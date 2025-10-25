@@ -10,8 +10,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Aspire.Keycloak.Authentication" Version="9.5.2-preview.1.25522.3" />
+    <PackageReference Include="Keycloak.AuthServices.Authentication" Version="2.7.0" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.10" />
+    <PackageReference Include="RestSharp" Version="112.1.0" />
+    <PackageReference Include="WolverineFx" Version="5.0.0" />
+    <PackageReference Include="WolverineFx.Http" Version="5.0.0" />
+    <PackageReference Include="WolverineFx.RabbitMQ" Version="5.0.0" />
+    <PackageReference Include="Aspire.StackExchange.Redis.OutputCaching" Version="9.5.2" />
   </ItemGroup>
 
   <ItemGroup>
@@ -19,6 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\CAP\CAP.csproj" />
     <ProjectReference Include="..\WeatherEye.ServiceDefaults\WeatherEye.ServiceDefaults.csproj" />
   </ItemGroup>
 
