@@ -1,7 +1,9 @@
 
+using ChmiCapAlertProvider.Handlers;
 using DevExpress.Xpo;
 using DevExpress.Xpo.DB;
 using JasperFx.MultiTenancy;
+using System.Text.Json.Serialization;
 using Wolverine;
 using Wolverine.RabbitMQ;
 
@@ -16,7 +18,16 @@ if (rabbitmqEndpoint is not null)
     builder.UseWolverine(opts =>
     {
         // Important! Convert the "connection string" up above to a Uri
-        opts.UseRabbitMq(new Uri(rabbitmqEndpoint)).AutoProvision();
+        opts.UseRabbitMq(new Uri(rabbitmqEndpoint))
+        .AutoProvision()
+        .UseConventionalRouting();
+
+        opts.UseSystemTextJsonForSerialization(stj =>
+        {
+            stj.UnknownTypeHandling = JsonUnknownTypeHandling.JsonNode;            
+            stj.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+            stj.IncludeFields = true;
+        });
     });
 }
 var conString = builder.Configuration.GetConnectionString("chmiAlertDB");
@@ -44,6 +55,7 @@ XpoDefault.DataLayer = XpoDefault.GetDataLayer(finalConnectionString, AutoCreate
 
 builder.AddServiceDefaults();
 builder.Services.AddHostedService<ChmiCapService>();
+
 
 var host = builder.Build();
 host.Run();

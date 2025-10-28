@@ -18,6 +18,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\CAP\CAP.csproj" />
+		<ProjectReference Include="..\MessagingContracts\MessagingContracts.csproj" />
 		<ProjectReference Include="..\WeatherEye.ServiceDefaults\WeatherEye.ServiceDefaults.csproj" />
 		<PackageReference Include="WolverineFx" Version="5.0.0" />
 		<PackageReference Include="WolverineFx.RabbitMQ" Version="5.0.0" />
