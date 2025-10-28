@@ -37,10 +37,9 @@ public class ChmiCapService : BackgroundService
 
             var bus = scope.ServiceProvider.GetRequiredService<IMessageBus>();
 
-
-
             RestRequest request = new RestRequest();
             var response = await client.GetAsync(request);
+
             if (response.IsSuccessful)
             {
                 _logger.LogInformation("ChmiCap data retrieved successfully at: {time}", DateTimeOffset.Now);
@@ -76,8 +75,8 @@ public class ChmiCapService : BackgroundService
                     }
                     AlertDAO dto = new AlertDAO(uow);
                     dto.SetProperties(info);
-
-                    await bus.PublishAsync(info);
+                    _logger.LogInformation("Publishing AlertInfo");
+                    await bus.SendAsync(info);
                 }
 
                 await uow.CommitChangesAsync();
@@ -88,7 +87,7 @@ public class ChmiCapService : BackgroundService
                 _logger.LogError("Failed to retrieve ChmiCap data at: {time}. Status Code: {statusCode}", DateTimeOffset.Now, response.StatusCode);
             }
 
-            await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
+            await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken);
         }
     }
 
