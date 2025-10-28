@@ -1,0 +1,6 @@
+@WeatherEye.AlertProvider_HostAddress = http://localhost:5110
+
+GET {{WeatherEye.AlertProvider_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
