@@ -6,8 +6,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WeatherEye.AppHost", "Weath
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WeatherEye.ServiceDefaults", "WeatherEye.ServiceDefaults\WeatherEye.ServiceDefaults.csproj", "{42384C97-BAC0-5142-6457-88093549C7E3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WeatherEye.Web", "WeatherEye.Web\WeatherEye.Web.csproj", "{CA4D87C5-FEAC-8B03-7AD7-109FC617C58F}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WeatherEye.Tests", "WeatherEye.Tests\WeatherEye.Tests.csproj", "{E3EB4DCA-DAC4-0E34-8843-D3E63301E75E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WeatherEye.API", "WeatherEye.AlertProvider\WeatherEye.API.csproj", "{DEB91979-38C4-2554-80DC-BE9681A10BCF}"
@@ -15,6 +13,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CAP", "CAP\CAP.csproj", "{917E94C0-4775-4009-B124-6EA0EC3E50B2}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChmiCapAlertProvider", "ChmiCapAlertProvider\ChmiCapAlertProvider.csproj", "{444B2868-28A5-8921-CE8F-A5F4D511985A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessagingContracts", "MessagingContracts\MessagingContracts.csproj", "{A6CD44A2-A0FB-4BC2-9C28-80F9694DC25F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WeatherEye.Web", "WeatherEye.Web\WeatherEye.Web.csproj", "{78BD8BE0-7206-4DD7-BD84-85C7D467EDAC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -30,10 +32,6 @@ Global
 		{42384C97-BAC0-5142-6457-88093549C7E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{42384C97-BAC0-5142-6457-88093549C7E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{42384C97-BAC0-5142-6457-88093549C7E3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{CA4D87C5-FEAC-8B03-7AD7-109FC617C58F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CA4D87C5-FEAC-8B03-7AD7-109FC617C58F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CA4D87C5-FEAC-8B03-7AD7-109FC617C58F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CA4D87C5-FEAC-8B03-7AD7-109FC617C58F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E3EB4DCA-DAC4-0E34-8843-D3E63301E75E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{E3EB4DCA-DAC4-0E34-8843-D3E63301E75E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E3EB4DCA-DAC4-0E34-8843-D3E63301E75E}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -50,6 +48,14 @@ Global
 		{444B2868-28A5-8921-CE8F-A5F4D511985A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{444B2868-28A5-8921-CE8F-A5F4D511985A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{444B2868-28A5-8921-CE8F-A5F4D511985A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A6CD44A2-A0FB-4BC2-9C28-80F9694DC25F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A6CD44A2-A0FB-4BC2-9C28-80F9694DC25F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A6CD44A2-A0FB-4BC2-9C28-80F9694DC25F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A6CD44A2-A0FB-4BC2-9C28-80F9694DC25F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{78BD8BE0-7206-4DD7-BD84-85C7D467EDAC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{78BD8BE0-7206-4DD7-BD84-85C7D467EDAC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{78BD8BE0-7206-4DD7-BD84-85C7D467EDAC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{78BD8BE0-7206-4DD7-BD84-85C7D467EDAC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

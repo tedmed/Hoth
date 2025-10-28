@@ -1,4 +1,3 @@
-namespace WeatherEye.Web;
 
 public class WeatherApiClient(HttpClient httpClient)
 {
