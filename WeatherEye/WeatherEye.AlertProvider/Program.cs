@@ -1,6 +1,8 @@
 using JasperFx.Core;
 using Keycloak.AuthServices.Authentication;
 using Microsoft.Extensions.Configuration;
+using Scalar.AspNetCore;
+using System.Text.Json.Serialization;
 using Wolverine;
 using Wolverine.RabbitMQ;
 
@@ -35,7 +37,16 @@ if (rabbitmqEndpoint is not null)
     builder.Host.UseWolverine(opts =>
     {
         // Important! Convert the "connection string" up above to a Uri
-        opts.UseRabbitMq(new Uri(rabbitmqEndpoint)).AutoProvision();
+        opts.UseRabbitMq(new Uri(rabbitmqEndpoint))
+        .AutoProvision()
+        .UseConventionalRouting();
+
+        opts.UseSystemTextJsonForSerialization(stj =>
+        {
+            stj.UnknownTypeHandling = JsonUnknownTypeHandling.JsonNode;
+            stj.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+            stj.IncludeFields = true;
+        });
     });
 }
 
@@ -49,6 +60,7 @@ app.MapDefaultEndpoints();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.MapScalarApiReference();
 }
 
 app.UseOutputCache();
