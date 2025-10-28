@@ -44,19 +44,20 @@ builder.AddProject<Projects.WeatherEye_Web>("webfrontend")
     .WaitFor(apiService);
 
 
-var postgresChmiAlert = builder.AddPostgres("postgresChmiAlert")
-    .WithContainerName("postgresChmiAlert")
-    .WithDataVolume("postgresChmiAlertData")
+var postgre = builder.AddPostgres("postgre")
+    .WithContainerName("postgre")
+    .WithDataVolume("postgreData")
     .WithPgAdmin()
     ;
 
-var chmiAlertProviderDB = postgresChmiAlert.AddDatabase("chmiAlertDB");
+var chmiAlertProviderDB = postgre.AddDatabase("chmiAlertDB");
 
 builder.AddProject<Projects.ChmiCapAlertProvider>("chmicapalertprovider")
 
     .WithReference(rabbitmq)
     .WaitFor(rabbitmq)
     .WithReference(chmiAlertProviderDB)
+    .WaitFor(chmiAlertProviderDB)
     ;
 
 
