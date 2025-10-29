@@ -20,6 +20,7 @@ var realm = keycloak.AddRealm("WeatherEye-public");
 var rabbitmq = builder.AddRabbitMQ("messaging")
     .WithContainerName("rabbitmqWeatherEye")
     .WithDataVolume("rabbitmqWeatherEyeDataVolume")
+    .WithOtlpExporter()
     .WithManagementPlugin()
     ;
 

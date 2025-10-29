@@ -1,6 +1,7 @@
 using JasperFx.Core;
 using Keycloak.AuthServices.Authentication;
 using Microsoft.Extensions.Configuration;
+using OpenTelemetry.Trace;
 using Scalar.AspNetCore;
 using System.Text.Json.Serialization;
 using Wolverine;
@@ -48,6 +49,15 @@ if (rabbitmqEndpoint is not null)
             stj.IncludeFields = true;
         });
     });
+    builder.Services.AddOpenTelemetry()
+        .WithTracing(configure =>
+        {
+            configure
+                .AddAspNetCoreInstrumentation()
+                .AddHttpClientInstrumentation()
+                .AddSource("Wolverine");
+        });
+
 }
 
 
