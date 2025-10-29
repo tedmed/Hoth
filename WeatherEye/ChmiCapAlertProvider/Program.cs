@@ -3,6 +3,7 @@ using ChmiCapAlertProvider.Handlers;
 using DevExpress.Xpo;
 using DevExpress.Xpo.DB;
 using JasperFx.MultiTenancy;
+using OpenTelemetry.Trace;
 using System.Text.Json.Serialization;
 using Wolverine;
 using Wolverine.RabbitMQ;
@@ -29,6 +30,14 @@ if (rabbitmqEndpoint is not null)
             stj.IncludeFields = true;
         });
     });
+
+    builder.Services.AddOpenTelemetry()
+        .WithTracing(configure =>
+        {
+            configure
+                .AddHttpClientInstrumentation()
+                .AddSource("Wolverine");
+        });     
 }
 var conString = builder.Configuration.GetConnectionString("chmiAlertDB");
 
