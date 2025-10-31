@@ -14,7 +14,7 @@
         <Microsoft.AspNetCore.Components.Authorization.AuthorizeView>
             <Authorized>
                 <MudButton Color="Color.Error" Variant="Variant.Text" ButtonType="ButtonType.Submit" Href="authentication/logout">
-                    <MudInput></MudInput>
+                    
                     Logout
                 </MudButton>
             </Authorized>
@@ -25,7 +25,7 @@
                 </MudButton>
             </NotAuthorized>
         </Microsoft.AspNetCore.Components.Authorization.AuthorizeView>
-
+        
         <MudIconButton Icon="@(DarkLightModeButtonIcon)" Color="Color.Inherit" OnClick="@DarkModeToggle" />
         <MudIconButton Icon="@Icons.Material.Filled.MoreVert" Color="Color.Inherit" Edge="Edge.End" />
     </MudAppBar>

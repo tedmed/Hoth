@@ -13,7 +13,7 @@ namespace WeatherEye.Web
 
 
             group.MapGet(pattern: "/login", OnLogin).AllowAnonymous();
-            group.MapPost(pattern: "/logout", OnLogout);
+            group.MapGet(pattern: "/logout", OnLogout);
 
             return group;
         }
@@ -23,8 +23,8 @@ namespace WeatherEye.Web
             {
                 RedirectUri = "/"
             });
-        static ChallengeHttpResult OnLogout() =>
-            TypedResults.Challenge(properties: new Microsoft.AspNetCore.Authentication.AuthenticationProperties
+        static SignOutHttpResult OnLogout() =>
+            TypedResults.SignOut(properties: new Microsoft.AspNetCore.Authentication.AuthenticationProperties
             {
                 RedirectUri = "/"
             },

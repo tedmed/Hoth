@@ -1,4 +1,5 @@
 using JasperFx.Core;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Extensions.Configuration;
 using OpenTelemetry.Trace;
 using Scalar.AspNetCore;
@@ -24,13 +25,13 @@ services.AddAuthorization();
 
 
 services.AddAuthentication()
+
                 .AddKeycloakJwtBearer(
                     serviceName: "keycloak",
-                    realm: "weathereye",
+                    realm: "WeatherEye",
                     options =>
                     {
                         options.Audience = "account";
-
                         if (builder.Environment.IsDevelopment())
                         {
                             options.RequireHttpsMetadata = false;

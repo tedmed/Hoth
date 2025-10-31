@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using MudBlazor.Services;
+using OpenTelemetry.Trace;
 using System.IdentityModel.Tokens.Jwt;
 using WeatherEye.Web;
 using WeatherEye.Web.Components;
@@ -32,6 +33,14 @@ builder.Services.AddHttpClient<CAPApiClient>(client =>
 }).AddHttpMessageHandler<AuthorizationHandler>();
 ;
 
+builder.Services.AddOpenTelemetry()
+        .WithTracing(configure =>
+        {
+            configure
+                .AddAspNetCoreInstrumentation()
+                .AddHttpClientInstrumentation();
+        });
+
 var oidcScheme = OpenIdConnectDefaults.AuthenticationScheme;
 builder.Services.AddAuthentication(oidcScheme)
                 .AddKeycloakOpenIdConnect("keycloak", realm: "WeatherEye", oidcScheme, opts =>
@@ -42,6 +51,7 @@ builder.Services.AddAuthentication(oidcScheme)
                     opts.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                     opts.TokenValidationParameters.NameClaimType = JwtRegisteredClaimNames.Name;
                     opts.SaveTokens = true;
+
                     
                     if (builder.Environment.IsDevelopment())
                     {
