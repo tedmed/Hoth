@@ -1,5 +1,6 @@
 ﻿using CAP;
 using DevExpress.Xpo;
+using RabbitMQ.Client.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,6 +19,23 @@ namespace ChmiCapAlertProvider.DAOs
             get { return fId; }
             set { SetPropertyValue<Guid>(nameof(Id), ref fId, value); }
         }
+
+        private string fIdentifier;
+        [Size(-1)]
+        public string Identifier
+        {
+            get { return fIdentifier; }
+            set { SetPropertyValue<string>(nameof(Identifier), ref fIdentifier, value); }
+        }
+
+        private DateTime? fSent;
+
+        public DateTime? Sent
+        {
+            get { return fSent; }
+            set { SetPropertyValue<DateTime?>(nameof(Sent), ref fSent, value); }
+        }
+
         private string fSenderName;
 
         [Size(-1)]
@@ -149,6 +167,7 @@ namespace ChmiCapAlertProvider.DAOs
             get { return fEffective; }
             set { SetPropertyValue<DateTime?>(nameof(Effective), ref fEffective, value); }
         }
+
         public override void AfterConstruction()
         {
             Id = Guid.NewGuid();
@@ -157,15 +176,18 @@ namespace ChmiCapAlertProvider.DAOs
         //public List<AreaDAO> Area { get; set; }
         public AlertDAO(Session session) : base(session) { }
 
-        public void SetProperties(AlertInfo info)
+        public void SetProperties(AlertInfo info, Alert alert)
         {
+            Identifier = alert.Identifier;
+            Sent = DateTime.SpecifyKind(alert.Sent, DateTimeKind.Utc);
+
             if (info.Onset != DateTime.MinValue)
                 Onset = DateTime.SpecifyKind(info.Onset, DateTimeKind.Utc);
             if (info.Expires != DateTime.MinValue)
                 Expires = DateTime.SpecifyKind(info.Expires, DateTimeKind.Utc);
             Event = info.Event;
-            
-            if(info.ResponseTypeSpecified)
+
+            if (info.ResponseTypeSpecified)
             {
                 ResponseType = info.ResponseType.Select(rt => rt.ToString()).Aggregate((a, b) => a + "," + b);
             }

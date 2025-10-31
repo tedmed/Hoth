@@ -1,5 +1,4 @@
 using JasperFx.Core;
-using Keycloak.AuthServices.Authentication;
 using Microsoft.Extensions.Configuration;
 using OpenTelemetry.Trace;
 using Scalar.AspNetCore;
@@ -21,15 +20,23 @@ builder.Services.AddOpenApi();
 
 builder.AddRedisOutputCache("cache");
 
-services.AddKeycloakWebApiAuthentication(
-    configuration,
-    options =>
-    {
-        options.Audience = "workspaces-client";
-        options.RequireHttpsMetadata = false;
-    }
-);
 services.AddAuthorization();
+
+
+services.AddAuthentication()
+                .AddKeycloakJwtBearer(
+                    serviceName: "keycloak",
+                    realm: "weathereye",
+                    options =>
+                    {
+                        options.Audience = "account";
+
+                        if (builder.Environment.IsDevelopment())
+                        {
+                            options.RequireHttpsMetadata = false;
+                        }
+                    });
+
 
 var rabbitmqEndpoint = builder.Configuration.GetConnectionString("messaging");
 

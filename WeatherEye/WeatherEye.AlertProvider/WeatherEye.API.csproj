@@ -10,7 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Keycloak.AuthServices.Authentication" Version="2.7.0" />
+    <PackageReference Include="Aspire.Keycloak.Authentication" Version="9.5.2-preview.1.25522.3" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.10" />
     <PackageReference Include="RestSharp" Version="112.1.0" />
     <PackageReference Include="Scalar.AspNetCore" Version="2.9.0" />
