@@ -74,7 +74,7 @@ public class ChmiCapService : BackgroundService
                         }
                     }
                     AlertDAO dto = new AlertDAO(uow);
-                    dto.SetProperties(info);
+                    dto.SetProperties(info, alert);
                     _logger.LogInformation("Publishing AlertInfo");
                     await bus.SendAsync(info);
                 }

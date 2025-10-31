@@ -1,4 +1,10 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using MudBlazor.Services;
+using OpenTelemetry.Trace;
+using System.IdentityModel.Tokens.Jwt;
 using WeatherEye.Web;
 using WeatherEye.Web.Components;
 
@@ -9,6 +15,8 @@ builder.AddServiceDefaults();
 // Add MudBlazor services
 builder.Services.AddMudServices();
 
+builder.Services.AddHttpContextAccessor()
+                .AddTransient<AuthorizationHandler>();
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
@@ -16,12 +24,44 @@ builder.Services.AddRazorComponents()
 builder.Services.AddHttpClient<WeatherApiClient>(client =>
     {
         client.BaseAddress = new("https+http://apiservice");
-    });
+    }).AddHttpMessageHandler<AuthorizationHandler>();
+;
 
 builder.Services.AddHttpClient<CAPApiClient>(client =>
 {
     client.BaseAddress = new("https+http://apiservice");
-});
+}).AddHttpMessageHandler<AuthorizationHandler>();
+;
+
+builder.Services.AddOpenTelemetry()
+        .WithTracing(configure =>
+        {
+            configure
+                .AddAspNetCoreInstrumentation()
+                .AddHttpClientInstrumentation();
+        });
+
+var oidcScheme = OpenIdConnectDefaults.AuthenticationScheme;
+builder.Services.AddAuthentication(oidcScheme)
+                .AddKeycloakOpenIdConnect("keycloak", realm: "WeatherEye", oidcScheme, opts =>
+                {
+                    opts.ClientId = "WeatherEyeWeb";
+                    opts.ResponseType = OpenIdConnectResponseType.Code;
+                    opts.Scope.Add("weathereye:all");
+                    opts.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                    opts.TokenValidationParameters.NameClaimType = JwtRegisteredClaimNames.Name;
+                    opts.SaveTokens = true;
+
+                    
+                    if (builder.Environment.IsDevelopment())
+                    {
+                        opts.RequireHttpsMetadata = false;
+                    }
+                })
+                .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme);
+
+builder.Services.AddCascadingAuthenticationState();
+
 
 var app = builder.Build();
 
@@ -34,6 +74,7 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.MapStaticAssets();
 
 
 app.UseAntiforgery();
@@ -41,7 +82,11 @@ app.UseAntiforgery();
 app.MapStaticAssets();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
+
 app.MapDefaultEndpoints();
+
+app.MapLoginAndLogout();
+
 
 
 app.Run();

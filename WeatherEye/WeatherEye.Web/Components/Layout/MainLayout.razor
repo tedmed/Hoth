@@ -1,4 +1,6 @@
 ﻿@inherits LayoutComponentBase
+@inject NavigationManager Navigation
+@inject IHttpClientFactory HttpClientFactory
 
 <MudThemeProvider Theme="@_theme" IsDarkMode="_isDarkMode" />
 <MudPopoverProvider />
@@ -8,7 +10,22 @@
     <MudAppBar Elevation="1">
         <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
         <MudText Typo="Typo.h5" Class="ml-3">WeatherEye</MudText>
-        <MudSpacer />
+        <MudSpacer></MudSpacer>
+        <Microsoft.AspNetCore.Components.Authorization.AuthorizeView>
+            <Authorized>
+                <MudButton Color="Color.Error" Variant="Variant.Text" ButtonType="ButtonType.Submit" Href="authentication/logout">
+                    
+                    Logout
+                </MudButton>
+            </Authorized>
+            
+            <NotAuthorized>
+                <MudButton Color="Color.Primary" Variant="Variant.Filled" Href="authentication/login" >
+                    Login
+                </MudButton>
+            </NotAuthorized>
+        </Microsoft.AspNetCore.Components.Authorization.AuthorizeView>
+        
         <MudIconButton Icon="@(DarkLightModeButtonIcon)" Color="Color.Inherit" OnClick="@DarkModeToggle" />
         <MudIconButton Icon="@Icons.Material.Filled.MoreVert" Color="Color.Inherit" Edge="Edge.End" />
     </MudAppBar>
@@ -48,6 +65,25 @@
     {
         _drawerOpen = !_drawerOpen;
     }
+
+    private void Login()
+    {
+        Navigation.NavigateTo("authentication/login");
+
+    }
+
+    private async void Logout()
+    {
+        // Keycloak vyžaduje POST logout, takže:
+        var client = HttpClientFactory.CreateClient();
+        var logoutUrl = Navigation.ToAbsoluteUri("/authentication/logout").ToString();
+
+        var res = await client.PostAsync(logoutUrl, null);
+
+        // po úspěchu refresh
+        Navigation.NavigateTo("/");
+    }
+
 
     private void DarkModeToggle()
     {

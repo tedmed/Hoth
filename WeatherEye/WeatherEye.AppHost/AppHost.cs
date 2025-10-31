@@ -6,16 +6,11 @@ var cache = builder.AddRedis("cache")
     ;
 
 
+var keycloak = builder.AddKeycloak("keycloak", 8081)
+    .WithDataVolume()
+    .WithExternalHttpEndpoints()
+    .WithRealmImport("KeycloakConfiguration/realm-WeatherEye.json");
 
-
-var keycloak = builder.AddKeycloakContainer("keycloak")
-    .WithContainerName("keycloak")
-    .WithDataVolume("keycloakWeatherEyeDataVolume")
-    //.WithImport("./KeycloakConfiguration/Test-realm.json")
-    //.WithImport("./KeycloakConfiguration/Test-users-0.json");
-;
-
-var realm = keycloak.AddRealm("WeatherEye-public");
 
 var rabbitmq = builder.AddRabbitMQ("messaging")
     .WithContainerName("rabbitmqWeatherEye")
@@ -27,7 +22,7 @@ var rabbitmq = builder.AddRabbitMQ("messaging")
 
 var apiService = builder.AddProject<Projects.WeatherEye_API>("apiservice")
     .WithReference(keycloak)
-    .WithReference(realm)
+    //.WithReference(realm)
     .WaitFor(keycloak)
     .WithReference(rabbitmq)
     .WaitFor(rabbitmq)
@@ -39,7 +34,7 @@ builder.AddProject<Projects.WeatherEye_Web>("webfrontend")
     .WithExternalHttpEndpoints()
     .WithHttpHealthCheck("/health")
     .WithReference(keycloak)
-    .WithReference(realm)
+    //.WithReference(realm)
     .WaitFor(keycloak)
     .WithReference(apiService)
     .WaitFor(apiService);
