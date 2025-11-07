@@ -1,15 +1,27 @@
+
+
 var builder = DistributedApplication.CreateBuilder(args);
+
+var compose = builder.AddDockerComposeEnvironment("compose");
 
 var cache = builder.AddRedis("cache")
     .WithDataVolume()
     .WithLifetime(ContainerLifetime.Session)
-    ;
+    .PublishAsDockerComposeService((resource, service) =>
+    {
+        service.Name = "cache";
+    });
+;
 
 
 var keycloak = builder.AddKeycloak("keycloak", 8081)
     .WithDataVolume()
     .WithExternalHttpEndpoints()
-    .WithRealmImport("KeycloakConfiguration/realm-WeatherEye.json");
+    .WithRealmImport("KeycloakConfiguration/realm-WeatherEye.json")
+    .PublishAsDockerComposeService((resource, service) =>
+    {
+        service.Name = "keycloak";
+    }); ;
 
 
 var rabbitmq = builder.AddRabbitMQ("messaging")
@@ -17,7 +29,11 @@ var rabbitmq = builder.AddRabbitMQ("messaging")
     .WithDataVolume("rabbitmqWeatherEyeDataVolume")
     .WithOtlpExporter()
     .WithManagementPlugin()
-    ;
+    .PublishAsDockerComposeService((resource, service) =>
+    {
+        service.Name = "messaging";
+    });
+;
 
 
 var apiService = builder.AddProject<Projects.WeatherEye_API>("apiservice")
@@ -28,7 +44,11 @@ var apiService = builder.AddProject<Projects.WeatherEye_API>("apiservice")
     .WaitFor(rabbitmq)
     .WithReference(cache)
     .WaitFor(cache)
-    .WithHttpHealthCheck("/health");
+    .WithHttpHealthCheck("/health")
+    .PublishAsDockerComposeService((resource, service) =>
+    {
+        service.Name = "api";
+    });
 
 builder.AddProject<Projects.WeatherEye_Web>("webfrontend")
     .WithExternalHttpEndpoints()
@@ -37,7 +57,11 @@ builder.AddProject<Projects.WeatherEye_Web>("webfrontend")
     //.WithReference(realm)
     .WaitFor(keycloak)
     .WithReference(apiService)
-    .WaitFor(apiService);
+    .WaitFor(apiService)
+    .PublishAsDockerComposeService((resource, service) =>
+    {
+        service.Name = "web";
+    }); ;
 
 
 var postgre = builder.AddPostgres("postgre")
@@ -54,7 +78,11 @@ builder.AddProject<Projects.ChmiCapAlertProvider>("chmicapalertprovider")
     .WaitFor(rabbitmq)
     .WithReference(chmiAlertProviderDB)
     .WaitFor(chmiAlertProviderDB)
-    ;
+    .PublishAsDockerComposeService((resource, service) =>
+    {
+        service.Name = "chmicapalertprovider";
+    });
+;
 
 
 
