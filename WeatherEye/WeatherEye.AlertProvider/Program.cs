@@ -1,5 +1,6 @@
 using JasperFx.Core;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Configuration;
 using OpenTelemetry.Trace;
 using Scalar.AspNetCore;
@@ -69,8 +70,16 @@ if (rabbitmqEndpoint is not null)
 }
 
 
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders =
+        ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+});
+
 
 var app = builder.Build();
+
+app.UseForwardedHeaders();
 
 app.MapDefaultEndpoints();
 

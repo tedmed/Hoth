@@ -11,12 +11,12 @@
 
   <ItemGroup>
     <PackageReference Include="Aspire.Keycloak.Authentication" Version="13.0.0-preview.1.25560.3" />
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.10" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.0" />
     <PackageReference Include="RestSharp" Version="112.1.0" />
-    <PackageReference Include="Scalar.AspNetCore" Version="2.9.0" />
-    <PackageReference Include="WolverineFx" Version="5.0.0" />
-    <PackageReference Include="WolverineFx.Http" Version="5.0.0" />
-    <PackageReference Include="WolverineFx.RabbitMQ" Version="5.0.0" />
+    <PackageReference Include="Scalar.AspNetCore" Version="2.10.3" />
+    <PackageReference Include="WolverineFx" Version="5.2.0" />
+    <PackageReference Include="WolverineFx.Http" Version="5.2.0" />
+    <PackageReference Include="WolverineFx.RabbitMQ" Version="5.2.0" />
     <PackageReference Include="Aspire.StackExchange.Redis.OutputCaching" Version="13.0.0" />
   </ItemGroup>
 

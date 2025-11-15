@@ -11,11 +11,11 @@
 		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.22.1" />
 		<PackageReference Include="Aspire.Npgsql" Version="13.0.0" />
 		<PackageReference Include="DevExpress.Xpo" Version="25.1.6" />
-		<PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.10" />
+		<PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.0" />
 		<PackageReference Include="DevExpress.Persistent.BaseImpl.Xpo" Version="25.1.6" />
 		<PackageReference Include="DevExpress.ExpressApp.Security.Xpo" Version="25.1.6" />
-		<PackageReference Include="WolverineFx" Version="5.0.0" />
-		<PackageReference Include="WolverineFx.RabbitMQ" Version="5.0.0" />
+		<PackageReference Include="WolverineFx" Version="5.2.0" />
+		<PackageReference Include="WolverineFx.RabbitMQ" Version="5.2.0" />
 	</ItemGroup>
 
 	<ItemGroup>

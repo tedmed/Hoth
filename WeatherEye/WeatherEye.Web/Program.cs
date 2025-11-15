@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using MudBlazor.Services;
 using OpenTelemetry.Trace;
@@ -14,6 +15,12 @@ builder.AddServiceDefaults();
 
 // Add MudBlazor services
 builder.Services.AddMudServices();
+
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders =
+        ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+});
 
 builder.Services.AddHttpContextAccessor()
                 .AddTransient<AuthorizationHandler>();
@@ -53,10 +60,9 @@ builder.Services.AddAuthentication(oidcScheme)
                     opts.SaveTokens = true;
 
                     
-                    if (builder.Environment.IsDevelopment())
-                    {
+                    
                         opts.RequireHttpsMetadata = false;
-                    }
+                    
                 })
                 .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme);
 
@@ -70,10 +76,17 @@ if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+    app.UseForwardedHeaders();
+
     app.UseHsts();
 }
+else
+{
+    app.UseDeveloperExceptionPage();
+    app.UseForwardedHeaders();
+}
 
-app.UseHttpsRedirection();
+    app.UseHttpsRedirection();
 app.MapStaticAssets();
 
 

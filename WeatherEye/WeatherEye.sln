@@ -18,6 +18,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessagingContracts", "Messa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WeatherEye.Web", "WeatherEye.Web\WeatherEye.Web.csproj", "{78BD8BE0-7206-4DD7-BD84-85C7D467EDAC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserService", "AuthProvider\UserService.csproj", "{15D1B89D-B193-4102-92E5-B2D7BD8250AA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -56,6 +58,10 @@ Global
 		{78BD8BE0-7206-4DD7-BD84-85C7D467EDAC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{78BD8BE0-7206-4DD7-BD84-85C7D467EDAC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{78BD8BE0-7206-4DD7-BD84-85C7D467EDAC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{15D1B89D-B193-4102-92E5-B2D7BD8250AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{15D1B89D-B193-4102-92E5-B2D7BD8250AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{15D1B89D-B193-4102-92E5-B2D7BD8250AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{15D1B89D-B193-4102-92E5-B2D7BD8250AA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
