@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.14.36429.23
+# Visual Studio Version 18
+VisualStudioVersion = 18.0.11205.157 d18.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WeatherEye.AppHost", "WeatherEye.AppHost\WeatherEye.AppHost.csproj", "{55FEEB95-3F0D-4741-AFBB-E9123DE101C5}"
 EndProject
@@ -8,7 +8,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WeatherEye.ServiceDefaults"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WeatherEye.Tests", "WeatherEye.Tests\WeatherEye.Tests.csproj", "{E3EB4DCA-DAC4-0E34-8843-D3E63301E75E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WeatherEye.API", "WeatherEye.AlertProvider\WeatherEye.API.csproj", "{DEB91979-38C4-2554-80DC-BE9681A10BCF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WeatherEye.API", "WeatherEye.API\WeatherEye.API.csproj", "{DEB91979-38C4-2554-80DC-BE9681A10BCF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CAP", "CAP\CAP.csproj", "{917E94C0-4775-4009-B124-6EA0EC3E50B2}"
 EndProject
