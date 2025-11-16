@@ -5,7 +5,6 @@
 	  <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <EnableSdkContainerDebugging>True</EnableSdkContainerDebugging>
-    <ContainerBaseImage>mcr.microsoft.com/dotnet/aspnet:9.0</ContainerBaseImage>
     <UserSecretsId>b52f699a-98c9-48d5-9f2b-9ccc20ed07dc</UserSecretsId>
   </PropertyGroup>
 
