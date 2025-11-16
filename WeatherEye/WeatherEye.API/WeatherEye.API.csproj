@@ -18,10 +18,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ContainerPort Include="8081" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<ProjectReference Include="..\CAP\CAP.csproj" />
 		<ProjectReference Include="..\MessagingContracts\MessagingContracts.csproj" />
 		<ProjectReference Include="..\WeatherEye.ServiceDefaults\WeatherEye.ServiceDefaults.csproj" />

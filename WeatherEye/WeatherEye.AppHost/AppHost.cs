@@ -1,5 +1,6 @@
 
 
+using Aspire.Hosting;
 using Aspire.Hosting.Yarp.Transforms;
 
 var builder = DistributedApplication.CreateBuilder(args);
@@ -72,6 +73,8 @@ var rabbitmq = builder.AddRabbitMQ("messaging")
 
 
 var apiService = builder.AddProject<Projects.WeatherEye_API>("apiservice")
+    .WithHttpHealthCheck("/health")
+
     .WithReference(keycloak)
     //.WithReference(realm)
     .WaitFor(keycloak)
@@ -79,7 +82,7 @@ var apiService = builder.AddProject<Projects.WeatherEye_API>("apiservice")
     .WaitFor(rabbitmq)
     .WithReference(cache)
     .WaitFor(cache)
-    .WithHttpHealthCheck("/health");
+    .WithEnvironment("ASPNET_VERSION", "10.0.0");
 
 var webfrontend = builder.AddProject<Projects.WeatherEye_Web>("webfrontend")
     .WithExternalHttpEndpoints()
