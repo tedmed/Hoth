@@ -33,10 +33,11 @@ services.AddAuthentication()
                     options =>
                     {
                         options.Audience = "account";
-                        if (builder.Environment.IsDevelopment())
-                        {
-                            options.RequireHttpsMetadata = false;
-                        }
+                        options.RequireHttpsMetadata = false;
+
+                        //if (builder.Environment.IsDevelopment())
+                        //{
+                        //}
                     });
 
 
