@@ -82,7 +82,8 @@ var apiService = builder.AddProject<Projects.WeatherEye_API>("apiservice")
     .WaitFor(rabbitmq)
     .WithReference(cache)
     .WaitFor(cache)
-    .WithEnvironment("ASPNET_VERSION", "10.0.0");
+    .WithEnvironment("ASPNET_VERSION", "10.0.0")
+    .WithEnvironment("DOTNET_VERSION", "10.0.0");
 
 var webfrontend = builder.AddProject<Projects.WeatherEye_Web>("webfrontend")
     .WithExternalHttpEndpoints()
