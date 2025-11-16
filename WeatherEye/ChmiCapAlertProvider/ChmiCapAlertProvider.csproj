@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Worker">
 
 	<PropertyGroup>
-		<TargetFrameworks>net10.0;net9.0</TargetFrameworks>
+		<TargetFramework>net10.0</TargetFramework>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<UserSecretsId>dotnet-ChmiCapAlertProvider-db031590-b844-45d9-a927-03eef75e2fca</UserSecretsId>
