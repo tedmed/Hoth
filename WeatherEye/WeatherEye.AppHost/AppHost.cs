@@ -130,7 +130,7 @@ var gateway = builder.AddYarp("gateway")
 
 
                          yarp.AddRoute("/keycloak/{**catch-all}", keycloak)
-                         .WithTransformPathRemovePrefix("/keycloak")
+                         //.WithTransformPathRemovePrefix("/keycloak")
                           .WithTransformXForwarded()
                           .WithTransformForwarded()
                           .WithTransformRequestHeader("X-Forwarded-Port", "443");
