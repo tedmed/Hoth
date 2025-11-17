@@ -76,7 +76,7 @@ builder.Services.AddAuthentication(oidcScheme)
 
                         if (!string.IsNullOrEmpty(forwardedHost))
                         {
-                            context.ProtocolMessage.RedirectUri = $"{forwardedProto ?? request.Scheme}://{forwardedHost}{context.Options.CallbackPath}";
+                            context.ProtocolMessage.RedirectUri = $"{forwardedProto ?? request.Scheme}://{forwardedHost}";
                         }
 
                         return Task.CompletedTask;
