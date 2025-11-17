@@ -21,12 +21,12 @@ namespace WeatherEye.Web
         static ChallengeHttpResult OnLogin() =>
             TypedResults.Challenge(properties: new Microsoft.AspNetCore.Authentication.AuthenticationProperties
             {
-                RedirectUri = "/"
+                RedirectUri = "/signin-oidc"
             });
         static SignOutHttpResult OnLogout() =>
             TypedResults.SignOut(properties: new Microsoft.AspNetCore.Authentication.AuthenticationProperties
             {
-                RedirectUri = "/"
+                RedirectUri = "/signout-callback-oidc"
             },
                 [
                     CookieAuthenticationDefaults.AuthenticationScheme,
