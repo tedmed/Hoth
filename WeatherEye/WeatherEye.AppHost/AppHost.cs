@@ -46,12 +46,13 @@ var keycloak = builder.AddKeycloak("keycloak", 8081)
     .WithArgs("--verbose")
 
     // Reverse proxy nastavení
-    .WithEnvironment("KC_PROXY", "edge")
+    //.WithEnvironment("KC_PROXY", "edge")
     .WithEnvironment("KC_PROXY_HEADERS", "xforwarded")
     .WithEnvironment("KC_HOSTNAME_STRICT", "false")
-    .WithEnvironment("KC_HOSTNAME_STRICT_HTTPS", "false")
+    //.WithEnvironment("KC_HOSTNAME_STRICT_HTTPS", "false")
 
-    .WithEnvironment("KC_HOSTNAME_URL", "https://weathereye.eu/keycloak")
+    .WithEnvironment("KC_HOSTNAME", "https://weathereye.eu/keycloak")
+    .WithEnvironment("KC_HOSTNAME_BACKCHANNEL_DYNAMIC", "true")
     // Nejzásadnìjší — nastaví venkovní URL HOST NAME
     //.WithEnvironment("KC_HOSTNAME", "weathereye.eu")
     //.WithEnvironment("KC_HOSTNAME_PORT","443")
@@ -131,7 +132,7 @@ var gateway = builder.AddYarp("gateway")
 
 
                          yarp.AddRoute("/keycloak/{**catch-all}", keycloak)
-                         //.WithTransformPathRemovePrefix("/keycloak")
+                         .WithTransformPathRemovePrefix("/keycloak")
                           .WithTransformXForwarded()
                           .WithTransformForwarded()
                           .WithTransformRequestHeader("X-Forwarded-Port", "443");
