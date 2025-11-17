@@ -96,9 +96,13 @@ app.MapDefaultEndpoints();
 //    app.MapScalarApiReference();
 //}
 app.MapOpenApi();
-app.MapScalarApiReference();
+app.MapScalarApiReference(opts =>
+{
+    opts.WithProxy("https://weathereye.eu/api");
+});
+    
 app.UseOutputCache();
-
+app.UseRouting();
 app.UseHttpsRedirection();
 
 app.UseAuthentication();

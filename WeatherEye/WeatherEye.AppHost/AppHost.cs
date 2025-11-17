@@ -47,7 +47,7 @@ var keycloak = builder.AddKeycloak("keycloak", 8081)
 
     // Reverse proxy nastavení
     //.WithEnvironment("KC_PROXY", "edge")
-    .WithEnvironment("KC_PROXY_HEADERS", "xforwarded")
+    .WithEnvironment("KC_PROXY_HEADERS", "forwarded")
     .WithEnvironment("KC_HOSTNAME_STRICT", "false")
     //.WithEnvironment("KC_HOSTNAME_STRICT_HTTPS", "false")
 
