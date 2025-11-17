@@ -63,7 +63,7 @@ builder.Services.AddAuthentication(oidcScheme)
 
                     if (!builder.Environment.IsDevelopment())
                     {
-                        opts.Authority = "https://weathereye.eu/realms/WeatherEye";
+                        opts.Authority = "https://weathereye.eu/keycloak/realms/WeatherEye";
                     }
 
                     opts.RequireHttpsMetadata = false;
