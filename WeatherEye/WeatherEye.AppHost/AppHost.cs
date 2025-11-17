@@ -47,7 +47,7 @@ var keycloak = builder.AddKeycloak("keycloak", 8081)
 
     // Reverse proxy nastavení
     //.WithEnvironment("KC_PROXY", "edge")
-    .WithEnvironment("KC_PROXY_HEADERS", "forwarded")
+    .WithEnvironment("KC_PROXY_HEADERS", "xforwarded")
     .WithEnvironment("KC_HOSTNAME_STRICT", "false")
     //.WithEnvironment("KC_HOSTNAME_STRICT_HTTPS", "false")
 
@@ -94,9 +94,7 @@ var apiService = builder.AddProject<Projects.WeatherEye_API>("apiservice")
     .WithReference(rabbitmq)
     .WaitFor(rabbitmq)
     .WithReference(cache)
-    .WaitFor(cache)
-    .WithEnvironment("ASPNET_VERSION", "10.0.0")
-    .WithEnvironment("DOTNET_VERSION", "10.0.0");
+    .WaitFor(cache);
 
 var webfrontend = builder.AddProject<Projects.WeatherEye_Web>("webfrontend")
     .WithExternalHttpEndpoints()
@@ -133,16 +131,15 @@ var gateway = builder.AddYarp("gateway")
 
                          yarp.AddRoute("/keycloak/{**catch-all}", keycloak)
                          .WithTransformPathRemovePrefix("/keycloak")
-                          .WithTransformXForwarded()
-                          .WithTransformForwarded()
-                          .WithTransformRequestHeader("X-Forwarded-Port", "443");
-
-                         ;
+                         .WithTransformXForwarded()
+                         .WithTransformForwarded()
+                         .WithTransformRequestHeader("X-Forwarded-Port", "443")
+                         .WithTransformRequestHeader("X-Forwarded-Prefix", "/keycloak");
 
                          yarp.AddRoute("/api/{**catch-all}", apiService)
                          .WithTransformPathRemovePrefix("/api")
                          .WithTransformXForwarded()
-                          .WithTransformForwarded();
+                         .WithTransformForwarded();
 
                      })
                      .WaitFor(webfrontend)
