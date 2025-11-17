@@ -41,14 +41,16 @@ var keycloakDbUrl = ReferenceExpression.Create(
 );
 
 var keycloak = builder.AddKeycloak("keycloak", 8081)
-    .WithEndpoint("http", e => e.IsExternal = true)
+    .WithEndpoint("http", e => e.IsExternal = true)    
+    //.WithHttpsEndpoint(9443,9443)
     .WithReference(kcDb)
     .WaitFor(kcDb)
     .WithArgs("--verbose")
 
     .WithEnvironment("KC_HTTP_ENABLED", "true")
 
-
+    .WithEnvironment("KC_PROXY_HEADERS", "xforwarded")
+    .WithEnvironment("KC_HOSTNAME_STRICT", "false")
     // DB nastavení
     .WithEnvironment("KC_DB", "postgres")
     .WithEnvironment("KC_DB_URL", keycloakDbUrl)
@@ -56,14 +58,13 @@ var keycloak = builder.AddKeycloak("keycloak", 8081)
     .WithEnvironment("KC_DB_PASSWORD", postgreKC.Resource.PasswordParameter);
 
 
-if(builder.Environment.IsDevelopment() == false)
+if (builder.Environment.IsDevelopment() == false)
 {
     keycloak
     // Reverse proxy nastavení
     //.WithEnvironment("KC_PROXY", "edge")
     //.WithEnvironment("KC_PROXY_PROTOCOL_ENABLED", "true")
-    .WithEnvironment("KC_PROXY_HEADERS", "xforwarded")
-    .WithEnvironment("KC_HOSTNAME_STRICT", "false")
+    
     //.WithEnvironment("KC_HOSTNAME_STRICT_HTTPS", "false")
 
     .WithEnvironment("KC_HOSTNAME", "https://weathereye.eu/keycloak")
@@ -132,23 +133,33 @@ var gateway = builder.AddYarp("gateway")
                      {
 
                          // Configure routes programmatically
-                         yarp.AddRoute("{**catch-all}", webfrontend)
+                         var frontend = yarp.AddRoute("{**catch-all}", webfrontend)
                          .WithTransformXForwarded(
                              xHost: Yarp.ReverseProxy.Transforms.ForwardedTransformActions.Set,
                              xProto: Yarp.ReverseProxy.Transforms.ForwardedTransformActions.Set
                              )
-                          .WithTransformForwarded()
+                          .WithTransformForwarded();
+                         if (!builder.Environment.IsDevelopment())
+                         {
+                             frontend
                           .WithTransformRequestHeader("X-Forwarded-Host", "weathereye.eu")
                           .WithTransformRequestHeader("X-Forwarded-Proto", "https");
+                         }
+                         else
+                         {
+                             frontend
+                          .WithTransformRequestHeader("X-Forwarded-Host", "localhost:8080");
+                          //.WithTransformRequestHeader("X-Forwarded-Proto", "http");
+                         }
 
-                         yarp.AddRoute("/keycloak/{**catch-all}", keycloak)
-                         .WithTransformPathRemovePrefix("/keycloak")
-                         .WithTransformXForwarded()
-                         .WithTransformForwarded()
-                         
-                         .WithTransformRequestHeader("X-Forwarded-Port", "443")
-                         .WithTransformRequestHeader("X-Forwarded-Prefix", "/keycloak");
-                        
+                             yarp.AddRoute("/keycloak/{**catch-all}", keycloak)
+                             .WithTransformPathRemovePrefix("/keycloak")
+                             .WithTransformXForwarded()
+                             .WithTransformForwarded()
+
+                             .WithTransformRequestHeader("X-Forwarded-Port", "443")
+                             .WithTransformRequestHeader("X-Forwarded-Prefix", "/keycloak");
+
 
                          yarp.AddRoute("/api/{**catch-all}", apiService)
                          .WithTransformPathRemovePrefix("/api")

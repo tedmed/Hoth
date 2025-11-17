@@ -53,19 +53,19 @@ var oidcScheme = OpenIdConnectDefaults.AuthenticationScheme;
 builder.Services.AddAuthentication(oidcScheme)
                 .AddKeycloakOpenIdConnect("keycloak", realm: "WeatherEye", oidcScheme, opts =>
                 {
-                opts.ClientId = "WeatherEyeWeb";
-                opts.ResponseType = OpenIdConnectResponseType.Code;
-                opts.Scope.Add("weathereye:all");
-                opts.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                opts.TokenValidationParameters.NameClaimType = JwtRegisteredClaimNames.Name;
-                opts.SaveTokens = true;
+                    opts.ClientId = "WeatherEyeWeb";
+                    opts.ResponseType = OpenIdConnectResponseType.Code;
+                    opts.Scope.Add("weathereye:all");
+                    opts.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                    opts.TokenValidationParameters.NameClaimType = JwtRegisteredClaimNames.Name;
+                    opts.SaveTokens = true;
 
-                if (!builder.Environment.IsDevelopment())
-                {
-                    opts.Authority = "https://weathereye.eu/keycloak/realms/WeatherEye";
-                }
+                    if (!builder.Environment.IsDevelopment())
+                    {
+                        opts.Authority = "https://weathereye.eu/keycloak/realms/WeatherEye";
 
-                opts.RequireHttpsMetadata = false;
+                        
+                    }
 
                     opts.Events.OnRedirectToIdentityProvider = context =>
                     {
@@ -76,11 +76,28 @@ builder.Services.AddAuthentication(oidcScheme)
 
                         if (!string.IsNullOrEmpty(forwardedHost))
                         {
-                            context.ProtocolMessage.RedirectUri = $"{forwardedProto ?? request.Scheme}://{forwardedHost}";
+                            context.ProtocolMessage.RedirectUri = $"{forwardedProto ?? request.Scheme}://{forwardedHost}{context.Options.CallbackPath}";
                         }
 
                         return Task.CompletedTask;
                     };
+
+                    opts.Events.OnRedirectToIdentityProviderForSignOut = context =>
+                    {
+                        var request = context.Request;
+                        var forwardedHost = request.Headers["X-Forwarded-Host"].FirstOrDefault();
+                        var forwardedProto = request.Headers["X-Forwarded-Proto"].FirstOrDefault();
+                        if (!string.IsNullOrEmpty(forwardedHost))
+                        {
+                            var postLogoutRedirectUri = $"{forwardedProto ?? request.Scheme}://{forwardedHost}{context.Options.CallbackPath}";
+                            context.ProtocolMessage.PostLogoutRedirectUri = postLogoutRedirectUri;
+                        }
+                        return Task.CompletedTask;
+                    };
+
+                    opts.RequireHttpsMetadata = false;
+
+
 
                 })
                 .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme);
@@ -105,13 +122,11 @@ else
 
 app.UseForwardedHeaders();
 
-app.UseHttpsRedirection();
-
+//app.UseHttpsRedirection();
 app.UseRouting();
 
 
-app.UseAuthentication();
-app.UseAuthorization();
+
 
 app.MapStaticAssets();
 

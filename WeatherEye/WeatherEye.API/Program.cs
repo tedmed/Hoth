@@ -103,7 +103,7 @@ app.MapScalarApiReference(opts =>
     
 app.UseOutputCache();
 app.UseRouting();
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 app.UseAuthentication();
 
