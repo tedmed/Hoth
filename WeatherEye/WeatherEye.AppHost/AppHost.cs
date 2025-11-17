@@ -133,9 +133,13 @@ var gateway = builder.AddYarp("gateway")
 
                          // Configure routes programmatically
                          yarp.AddRoute("{**catch-all}", webfrontend)
-                         .WithTransformXForwarded()
-                          .WithTransformForwarded();
-
+                         .WithTransformXForwarded(
+                             xHost: Yarp.ReverseProxy.Transforms.ForwardedTransformActions.Set,
+                             xProto: Yarp.ReverseProxy.Transforms.ForwardedTransformActions.Set
+                             )
+                          .WithTransformForwarded()
+                          .WithTransformRequestHeader("X-Forwarded-Host", "weathereye.eu")
+                          .WithTransformRequestHeader("X-Forwarded-Proto", "https");
 
                          yarp.AddRoute("/keycloak/{**catch-all}", keycloak)
                          .WithTransformPathRemovePrefix("/keycloak")
