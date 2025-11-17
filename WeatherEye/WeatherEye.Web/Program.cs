@@ -59,6 +59,7 @@ builder.Services.AddAuthentication(oidcScheme)
                     opts.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                     opts.TokenValidationParameters.NameClaimType = JwtRegisteredClaimNames.Name;
                     opts.SaveTokens = true;
+                    
 
                     if (!builder.Environment.IsDevelopment())
                     {
@@ -66,7 +67,7 @@ builder.Services.AddAuthentication(oidcScheme)
                     }
 
                     opts.RequireHttpsMetadata = false;
-                    
+
                 })
                 .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme);
 
@@ -87,10 +88,13 @@ if (!app.Environment.IsDevelopment())
 else
 {
     app.UseDeveloperExceptionPage();
-    app.UseForwardedHeaders();
 }
 
-    app.UseHttpsRedirection();
+app.UseHttpsRedirection();
+app.UseForwardedHeaders();
+
+app.UseRouting();
+
 app.MapStaticAssets();
 
 

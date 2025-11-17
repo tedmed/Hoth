@@ -40,23 +40,32 @@ var keycloakDbUrl = ReferenceExpression.Create(
 );
 
 var keycloak = builder.AddKeycloak("keycloak", 8081)
-    //.WithDataVolume()
     .WithEndpoint("http", e => e.IsExternal = true)
     .WithReference(kcDb)
     .WaitFor(kcDb)
     .WithArgs("--verbose")
-    //.WithRealmImport("KeycloakConfiguration/realm-WeatherEye.json")
+
+    // Reverse proxy nastavení
     .WithEnvironment("KC_PROXY", "edge")
-    .WithEnvironment("KEYCLOAK_FRONTEND_URL", "https://weathereye.eu/auth")
-    .WithEnvironment("KC_HTTP_ENABLED", "true")
     .WithEnvironment("KC_PROXY_HEADERS", "xforwarded")
     .WithEnvironment("KC_HOSTNAME_STRICT", "false")
     .WithEnvironment("KC_HOSTNAME_STRICT_HTTPS", "false")
+
+    // Nejzásadnìjší — nastaví venkovní URL HOST NAME
+    .WithEnvironment("KC_HOSTNAME", "weathereye.eu")
+    .WithEnvironment("KC_HOSTNAME_PORT","443")
+
+    // A BASE PATH za reverse proxy:
+    .WithEnvironment("KC_HOSTNAME_PATH", "/keycloak")
+
+    .WithEnvironment("KC_HTTP_ENABLED", "true")
+
+    // DB nastavení
     .WithEnvironment("KC_DB", "postgres")
     .WithEnvironment("KC_DB_URL", keycloakDbUrl)
     .WithEnvironment("KC_DB_USERNAME", postgreKC.Resource.UserNameReference)
-    .WithEnvironment("KC_DB_PASSWORD", postgreKC.Resource.PasswordParameter)
-    ;
+    .WithEnvironment("KC_DB_PASSWORD", postgreKC.Resource.PasswordParameter);
+;
 
 if (builder.ExecutionContext.IsRunMode)
 {
@@ -123,7 +132,10 @@ var gateway = builder.AddYarp("gateway")
                          yarp.AddRoute("/keycloak/{**catch-all}", keycloak)
                          .WithTransformPathRemovePrefix("/keycloak")
                           .WithTransformXForwarded()
-                          .WithTransformForwarded();
+                          .WithTransformForwarded()
+                          .WithTransformRequestHeader("X-Forwarded-Port", "443");
+
+                         ;
 
                          yarp.AddRoute("/api/{**catch-all}", apiService)
                          .WithTransformPathRemovePrefix("/api")
