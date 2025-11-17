@@ -2,6 +2,7 @@
 
 using Aspire.Hosting;
 using Aspire.Hosting.Yarp.Transforms;
+using Microsoft.Extensions.Hosting;
 
 var builder = DistributedApplication.CreateBuilder(args);
 
@@ -45,6 +46,19 @@ var keycloak = builder.AddKeycloak("keycloak", 8081)
     .WaitFor(kcDb)
     .WithArgs("--verbose")
 
+    .WithEnvironment("KC_HTTP_ENABLED", "true")
+
+
+    // DB nastavení
+    .WithEnvironment("KC_DB", "postgres")
+    .WithEnvironment("KC_DB_URL", keycloakDbUrl)
+    .WithEnvironment("KC_DB_USERNAME", postgreKC.Resource.UserNameReference)
+    .WithEnvironment("KC_DB_PASSWORD", postgreKC.Resource.PasswordParameter);
+
+
+if(builder.Environment.IsDevelopment() == false)
+{
+    keycloak
     // Reverse proxy nastavení
     //.WithEnvironment("KC_PROXY", "edge")
     //.WithEnvironment("KC_PROXY_PROTOCOL_ENABLED", "true")
@@ -53,7 +67,7 @@ var keycloak = builder.AddKeycloak("keycloak", 8081)
     //.WithEnvironment("KC_HOSTNAME_STRICT_HTTPS", "false")
 
     .WithEnvironment("KC_HOSTNAME", "https://weathereye.eu/keycloak")
-    .WithEnvironment("KC_HOSTNAME_BACKCHANNEL_DYNAMIC", "true")
+    .WithEnvironment("KC_HOSTNAME_BACKCHANNEL_DYNAMIC", "true");
     // Nejzásadnìjší — nastaví venkovní URL HOST NAME
     //.WithEnvironment("KC_HOSTNAME", "weathereye.eu")
     //.WithEnvironment("KC_HOSTNAME_PORT","443")
@@ -61,14 +75,7 @@ var keycloak = builder.AddKeycloak("keycloak", 8081)
     // A BASE PATH za reverse proxy:
     //.WithEnvironment("KC_HOSTNAME_PATH", "/keycloak")
 
-    .WithEnvironment("KC_HTTP_ENABLED", "true")
-
-    // DB nastavení
-    .WithEnvironment("KC_DB", "postgres")
-    .WithEnvironment("KC_DB_URL", keycloakDbUrl)
-    .WithEnvironment("KC_DB_USERNAME", postgreKC.Resource.UserNameReference)
-    .WithEnvironment("KC_DB_PASSWORD", postgreKC.Resource.PasswordParameter);
-;
+}
 
 if (builder.ExecutionContext.IsRunMode)
 {

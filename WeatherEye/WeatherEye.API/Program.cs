@@ -38,7 +38,7 @@ services.AddAuthentication()
 
                         if (!builder.Environment.IsDevelopment())
                         {
-                            options.Authority = "https://weathereye.eu/realms/WeatherEye";
+                            options.Authority = "https://weathereye.eu/keycloak/realms/WeatherEye";
                         }
                         //if (builder.Environment.IsDevelopment())
                         //{
