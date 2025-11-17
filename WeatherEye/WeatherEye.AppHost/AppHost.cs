@@ -52,7 +52,7 @@ var keycloak = builder.AddKeycloak("keycloak", 8081)
     .WithEnvironment("KC_HOSTNAME_STRICT", "false")
     //.WithEnvironment("KC_HOSTNAME_STRICT_HTTPS", "false")
 
-    .WithEnvironment("KC_HOSTNAME", "https://weathereye.eu/keycloak")
+    .WithEnvironment("KC_HOSTNAME", "http://weathereye.eu/keycloak")
     .WithEnvironment("KC_HOSTNAME_BACKCHANNEL_DYNAMIC", "true")
     // Nejzásadnìjší — nastaví venkovní URL HOST NAME
     //.WithEnvironment("KC_HOSTNAME", "weathereye.eu")
