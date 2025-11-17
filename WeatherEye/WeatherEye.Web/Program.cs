@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using MudBlazor.Services;
 using OpenTelemetry.Trace;
@@ -59,9 +60,12 @@ builder.Services.AddAuthentication(oidcScheme)
                     opts.TokenValidationParameters.NameClaimType = JwtRegisteredClaimNames.Name;
                     opts.SaveTokens = true;
 
-                    
-                    
-                        opts.RequireHttpsMetadata = false;
+                    if (!builder.Environment.IsDevelopment())
+                    {
+                        opts.Authority = "https://weathereye.eu/realms/WeatherEye";
+                    }
+
+                    opts.RequireHttpsMetadata = false;
                     
                 })
                 .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme);

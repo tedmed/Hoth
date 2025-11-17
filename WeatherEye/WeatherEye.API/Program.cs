@@ -1,3 +1,4 @@
+using ImTools;
 using JasperFx.Core;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -35,6 +36,10 @@ services.AddAuthentication()
                         options.Audience = "account";
                         options.RequireHttpsMetadata = false;
 
+                        if (!builder.Environment.IsDevelopment())
+                        {
+                            options.Authority = "https://weathereye.eu/realms/WeatherEye";
+                        }
                         //if (builder.Environment.IsDevelopment())
                         //{
                         //}
