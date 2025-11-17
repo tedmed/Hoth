@@ -51,12 +51,13 @@ var keycloak = builder.AddKeycloak("keycloak", 8081)
     .WithEnvironment("KC_HOSTNAME_STRICT", "false")
     .WithEnvironment("KC_HOSTNAME_STRICT_HTTPS", "false")
 
+    .WithEnvironment("KC_HOSTNAME_URL", "https://weathereye.eu/keycloak")
     // Nejzásadnìjší — nastaví venkovní URL HOST NAME
-    .WithEnvironment("KC_HOSTNAME", "weathereye.eu/keycloak")
-    .WithEnvironment("KC_HOSTNAME_PORT","443")
+    //.WithEnvironment("KC_HOSTNAME", "weathereye.eu")
+    //.WithEnvironment("KC_HOSTNAME_PORT","443")
 
     // A BASE PATH za reverse proxy:
-    .WithEnvironment("KC_HOSTNAME_PATH", "/keycloak")
+    //.WithEnvironment("KC_HOSTNAME_PATH", "/keycloak")
 
     .WithEnvironment("KC_HTTP_ENABLED", "true")
 
