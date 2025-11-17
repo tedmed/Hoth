@@ -53,20 +53,34 @@ var oidcScheme = OpenIdConnectDefaults.AuthenticationScheme;
 builder.Services.AddAuthentication(oidcScheme)
                 .AddKeycloakOpenIdConnect("keycloak", realm: "WeatherEye", oidcScheme, opts =>
                 {
-                    opts.ClientId = "WeatherEyeWeb";
-                    opts.ResponseType = OpenIdConnectResponseType.Code;
-                    opts.Scope.Add("weathereye:all");
-                    opts.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                    opts.TokenValidationParameters.NameClaimType = JwtRegisteredClaimNames.Name;
-                    opts.SaveTokens = true;
-                    
+                opts.ClientId = "WeatherEyeWeb";
+                opts.ResponseType = OpenIdConnectResponseType.Code;
+                opts.Scope.Add("weathereye:all");
+                opts.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                opts.TokenValidationParameters.NameClaimType = JwtRegisteredClaimNames.Name;
+                opts.SaveTokens = true;
 
-                    if (!builder.Environment.IsDevelopment())
+                if (!builder.Environment.IsDevelopment())
+                {
+                    opts.Authority = "https://weathereye.eu/keycloak/realms/WeatherEye";
+                }
+
+                opts.RequireHttpsMetadata = false;
+
+                    opts.Events.OnRedirectToIdentityProvider = context =>
                     {
-                        opts.Authority = "https://weathereye.eu/keycloak/realms/WeatherEye";
-                    }
+                        var request = context.Request;
 
-                    opts.RequireHttpsMetadata = false;
+                        var forwardedHost = request.Headers["X-Forwarded-Host"].FirstOrDefault();
+                        var forwardedProto = request.Headers["X-Forwarded-Proto"].FirstOrDefault();
+
+                        if (!string.IsNullOrEmpty(forwardedHost))
+                        {
+                            context.ProtocolMessage.RedirectUri = $"{forwardedProto ?? request.Scheme}://{forwardedHost}{context.Options.CallbackPath}";
+                        }
+
+                        return Task.CompletedTask;
+                    };
 
                 })
                 .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme);
@@ -81,7 +95,6 @@ if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseForwardedHeaders();
 
     app.UseHsts();
 }
@@ -90,8 +103,9 @@ else
     app.UseDeveloperExceptionPage();
 }
 
-app.UseHttpsRedirection();
 app.UseForwardedHeaders();
+
+app.UseHttpsRedirection();
 
 app.UseRouting();
 

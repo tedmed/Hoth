@@ -141,8 +141,10 @@ var gateway = builder.AddYarp("gateway")
                          .WithTransformPathRemovePrefix("/keycloak")
                          .WithTransformXForwarded()
                          .WithTransformForwarded()
+                         
                          .WithTransformRequestHeader("X-Forwarded-Port", "443")
                          .WithTransformRequestHeader("X-Forwarded-Prefix", "/keycloak");
+                        
 
                          yarp.AddRoute("/api/{**catch-all}", apiService)
                          .WithTransformPathRemovePrefix("/api")
@@ -160,6 +162,8 @@ var gateway = builder.AddYarp("gateway")
                      });
 
 
+webfrontend.WithReference(gateway);
+apiService.WithReference(gateway);
 
 
 builder.Build().Run();
