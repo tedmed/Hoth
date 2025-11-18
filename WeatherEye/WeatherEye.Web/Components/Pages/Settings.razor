@@ -1,6 +1,6 @@
 ﻿@page "/settings"
-@* Injektování ISnackbar není pro vizuál potřeba, můžeme ho smazat nebo zakomentovat. *@
-@* @inject ISnackbar Snackbar // Pro jednoduché zobrazení, že nastavení bylo uloženo *@
+@using CAP.DTOs;
+@inject CAPApiClient CapApi
 
 <MudText Typo="Typo.h4" GutterBottom="true">
     🔔 Nastavení Notifikací
@@ -10,54 +10,114 @@
     Zde si můžete nastavit, jaké výstrahy a jakým způsobem chcete dostávat.
 </MudText>
 
+@foreach (var block in filterBlocks)
+{
+    <MudPaper Class="pa-16 ma-2" Elevation="3">
+        <MudGrid>
+            <MudItem xs="12" sm="6">
+                <MudSelect T="string" Label="Oblast" @bind-Value="block.SelectedRegion" Required="true" RequiredError="Vyberte prosím oblast.">
+                    @foreach (var a in AvailableRegions)
+                    {
+                        <MudSelectItem Value="@a">@a</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudItem>
+
+            <MudItem xs="12" sm="6">
+                <MudSelect T="string" Label="Typ události" @bind-Value="block.SelectedEvent">
+                    <MudSelectItem Value="@("Vsechny")">Všechny</MudSelectItem>
+                    <MudSelectItem Value="@("Silny_vitr")">Silný vítr</MudSelectItem>
+                    <MudSelectItem Value="@("Snezeni")">Sněžení/Ledovka</MudSelectItem>
+                </MudSelect>
+            </MudItem>
+
+            <MudItem xs="12" sm="6">
+                <MudSelect T="string" Label="Síla hrozby (Severity)" @bind-Value="block.SelectedSeverity">
+                    <MudSelectItem Value="@("Vsechny")">Všechny</MudSelectItem>
+                    <MudSelectItem Value="@("Minor")">Minor (Mírná)</MudSelectItem>
+                    <MudSelectItem Value="@("Moderate")">Moderate (Střední)</MudSelectItem>
+                    <MudSelectItem Value="@("Severe")">Severe (Velká)</MudSelectItem>
+                </MudSelect>
+            </MudItem>
+
+		</MudGrid>
+
+		<MudDivider Class="my-6" />
+
+		<MudText Typo="Typo.h6" Class="mb-4">
+			Způsob upozornění
+		</MudText>
+
+		<MudGrid>
+			<MudItem xs="12" sm="6">
+				<MudCheckBox T="bool" Checked="true" Color="Color.Primary" Label="Upozornění do aplikace (Bell icon)" />
+			</MudItem>
+
+			<MudItem xs="12" sm="6">
+				<MudCheckBox T="bool" Checked="false" Color="Color.Secondary" Label="Upozornění emailem" />
+			</MudItem>
+		</MudGrid>
+
+		<MudDivider Class="my-6" />
+
+		<MudItem xs="12">
+			<MudButton Color="Color.Error" Variant="Variant.Filled" OnClick="() => RemoveBlock(block)">Odstranit notifikaci</MudButton>
+		</MudItem>
+
+	</MudPaper>
+}
 <MudGrid>
-    <MudItem xs="12" sm="6">
-        <MudSelect T="string" Label="Oblast" Value="@("hlavni_mesto_praha")" Required="true" RequiredError="Vyberte prosím oblast.">
-            <MudSelectItem Value="@("hlavni_mesto_praha")">Hlavní město Praha</MudSelectItem>
-            <MudSelectItem Value="@("Stredocesky_kraj")">Středočeský kraj</MudSelectItem>
-            <MudSelectItem Value="@("Plzensky_kraj")">Plzeňský kraj</MudSelectItem>
-        </MudSelect>
+    <MudItem xs="12">
+		<MudButton Color="Color.Primary" Variant="Variant.Filled" Class="mt-6" OnClick="AddNewBlock">
+			Přidat notifikaci
+		</MudButton>
     </MudItem>
 
-    <MudItem xs="12" sm="6">
-        <MudSelect T="string" Label="Typ události" Value="@("Silny_vitr")">
-            <MudSelectItem Value="@("Vsechny")">Všechny</MudSelectItem>
-            <MudSelectItem Value="@("Silny_vitr")">Silný vítr</MudSelectItem>
-            <MudSelectItem Value="@("Sněžení")">Sněžení/Ledovka</MudSelectItem>
-        </MudSelect>
-    </MudItem>
-
-    <MudItem xs="12" sm="6">
-        <MudSelect T="string" Label="Síla hrozby (Severity)" Value="@("Moderate")">
-            <MudSelectItem Value="@("Vsechny")">Všechny</MudSelectItem>
-            <MudSelectItem Value="@("Minor")">Minor (Mírná)</MudSelectItem>
-            <MudSelectItem Value="@("Moderate")">Moderate (Střední)</MudSelectItem>
-            <MudSelectItem Value="@("Severe")">Severe (Velká)</MudSelectItem>
-        </MudSelect>
+    <MudItem xs="12">
+		<MudButton Color="Color.Success" Variant="Variant.Filled" Class="mt-6">
+			💾 Uložit Nastavení
+		</MudButton>
     </MudItem>
 </MudGrid>
-
-<MudDivider Class="my-6" />
-
-<MudText Typo="Typo.h5" Class="mb-4">
-    Způsob upozornění
-</MudText>
-
-<MudGrid>
-    <MudItem xs="12" sm="6">
-        <MudCheckBox T="bool" Checked="true" Color="Color.Primary" Label="Upozornění do aplikace (Bell icon)" />
-    </MudItem>
-
-    <MudItem xs="12" sm="6">
-        <MudCheckBox T="bool" Checked="false" Color="Color.Secondary" Label="Upozornění emailem" />
-    </MudItem>
-</MudGrid>
-
-<MudButton Color="Color.Success" Variant="Variant.Filled" Class="mt-6">
-    💾 Uložit Nastavení
-</MudButton>
-
 
 @code {
-    // Sekce @code je prázdná, takže by neměla způsobovat žádné chyby.
+    private AlertInfoDTO[]? AlertInfoDTOs;
+    private AlertInfoDTO[]? FilteredAlertInfoDTOs => string.IsNullOrEmpty(selectedRegion)
+        ? AlertInfoDTOs
+        : AlertInfoDTOs?.Where(a => a.AreaDesc != null && a.AreaDesc.Contains(selectedRegion)).ToArray();
+    private string[] AvailableRegions;
+    private string selectedRegion;
+
+    protected override async Task OnInitializedAsync()
+    {
+        AlertInfoDTOs = await CapApi.GetAlertsAsync(); // Replace with actual API call
+        AvailableRegions = await CapApi.GetAvailableRegionsAsync();
+    }
+    // Seznam bloků, kde každý blok obsahuje výběr hodnot
+    private List<FilterBlock> filterBlocks = new List<FilterBlock>();
+
+    // Třída, která drží vybrané hodnoty pro každý blok
+    public class FilterBlock
+    {
+        public string SelectedRegion { get; set; }
+        public string SelectedEvent { get; set; }
+        public string SelectedSeverity { get; set; }
+    }
+
+    // Funkce pro přidání nového bloku
+    private void AddNewBlock()
+    {
+        filterBlocks.Add(new FilterBlock
+        {
+            SelectedRegion = "Hlavní město Praha", // default value
+            SelectedEvent = "Vsechny",          // default value
+            SelectedSeverity = "Vsechny"        // default value
+        });
+    }
+
+    // Funkce pro odstranění bloku
+    private void RemoveBlock(FilterBlock block)
+    {
+        filterBlocks.Remove(block);
+    }
 }
