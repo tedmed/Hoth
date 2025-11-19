@@ -77,6 +77,7 @@ public class ChmiCapService : BackgroundService
                     dto.SetProperties(info, alert);
                     _logger.LogInformation("Publishing AlertInfo");
                     await bus.SendAsync(info);
+                    uow.CommitChanges();
                 }
 
                 await uow.CommitChangesAsync();
