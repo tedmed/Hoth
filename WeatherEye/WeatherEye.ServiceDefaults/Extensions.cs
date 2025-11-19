@@ -57,7 +57,11 @@ public static class Extensions
             {
                 metrics.AddAspNetCoreInstrumentation()
                     .AddHttpClientInstrumentation()
-                    .AddRuntimeInstrumentation();
+                    .AddRuntimeInstrumentation()
+                    .AddMeter("Microsoft.AspNetCore.Components")
+                    .AddMeter("Microsoft.AspNetCore.Components.Server.Circuits")
+                    .AddMeter("Microsoft.AspNetCore.Components.Lifecycle");
+
             })
             .WithTracing(tracing =>
             {

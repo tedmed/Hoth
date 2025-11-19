@@ -1,0 +1,277 @@
+services:
+  env-dashboard:
+    image: "mcr.microsoft.com/dotnet/nightly/aspire-dashboard:latest"
+    environment:
+      ASPIRE_DASHBOARD_FORWARDEDHEADERS_ENABLED: "true"
+    ports:
+      - "8082:18888"
+    expose:
+      - "18889"
+    networks:
+      - "aspire"
+    restart: "always"
+  cache:
+    image: "docker.io/library/redis:8.2"
+    command:
+      - "-c"
+      - "redis-server --requirepass $$REDIS_PASSWORD --save 60 1"
+    entrypoint:
+      - "/bin/sh"
+    environment:
+      REDIS_PASSWORD: "${CACHE_PASSWORD}"
+    expose:
+      - "6379"
+    volumes:
+      - type: "volume"
+        target: "/data"
+        source: "weathereye.apphost-efe3d9e3ea-cache-data"
+        read_only: false
+    networks:
+      - "aspire"
+  postgre:
+    image: "docker.io/library/postgres:17.6"
+    container_name: "postgre"
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: "scram-sha-256"
+      POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256 --auth-local=scram-sha-256"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "${POSTGRE_PASSWORD}"
+    expose:
+      - "5432"
+    volumes:
+      - type: "volume"
+        target: "/var/lib/postgresql/data"
+        source: "postgreData"
+        read_only: false
+    networks:
+      - "aspire"
+  postgrekc:
+    image: "docker.io/library/postgres:17.6"
+    container_name: "postgreKC"
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: "scram-sha-256"
+      POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256 --auth-local=scram-sha-256"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "${POSTGREKC_PASSWORD}"
+    expose:
+      - "5432"
+    volumes:
+      - type: "volume"
+        target: "/var/lib/postgresql/data"
+        source: "postgreKCData"
+        read_only: false
+    networks:
+      - "aspire"
+  keycloak:
+    image: "quay.io/keycloak/keycloak:26.4"
+    command:
+      - "start"
+      - "--import-realm"
+      - "--verbose"
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: "admin"
+      KC_BOOTSTRAP_ADMIN_PASSWORD: "${KEYCLOAK_PASSWORD}"
+      KC_HEALTH_ENABLED: "true"
+      ConnectionStrings__postgres: "Host=postgreKC;Port=5432;Username=postgres;Password=${POSTGREKC_PASSWORD};Database=postgres"
+      POSTGRES_HOST: "postgreKC"
+      POSTGRES_PORT: "5432"
+      POSTGRES_USERNAME: "postgres"
+      POSTGRES_PASSWORD: "${POSTGREKC_PASSWORD}"
+      POSTGRES_URI: "postgresql://postgres:${POSTGREKC_PASSWORD}@postgreKC:5432/postgres"
+      POSTGRES_JDBCCONNECTIONSTRING: "jdbc:postgresql://postgreKC:5432/postgres"
+      POSTGRES_DATABASE: "postgres"
+      KC_HTTP_ENABLED: "true"
+      KC_PROXY_HEADERS: "xforwarded"
+      KC_HOSTNAME_STRICT: "false"
+      KC_HOSTNAME_STRICT_HTTPS: "false"
+      KC_DB: "postgres"
+      KC_DB_URL: "jdbc:postgresql://postgreKC:5432"
+      KC_DB_USERNAME: "postgres"
+      KC_DB_PASSWORD: "${POSTGREKC_PASSWORD}"
+      KC_HOSTNAME_URL: "https://host.docker.internal:7121/keycloak"
+      KC_HOSTNAME_ADMIN_URL: "https://host.docker.internal:7121/keycloak"
+    ports:
+      - "8081:8080"
+    expose:
+      - "9000"
+    depends_on:
+      postgrekc:
+        condition: "service_started"
+    networks:
+      - "aspire"
+  messaging:
+    image: "docker.io/library/rabbitmq:4.2-management"
+    container_name: "rabbitmqWeatherEye"
+    environment:
+      RABBITMQ_DEFAULT_USER: "guest"
+      RABBITMQ_DEFAULT_PASS: "${MESSAGING_PASSWORD}"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://env-dashboard:18889"
+      OTEL_EXPORTER_OTLP_PROTOCOL: "grpc"
+      OTEL_SERVICE_NAME: "messaging"
+    expose:
+      - "5672"
+      - "15672"
+    volumes:
+      - type: "volume"
+        target: "/var/lib/rabbitmq"
+        source: "rabbitmqWeatherEyeDataVolume"
+        read_only: false
+    networks:
+      - "aspire"
+  apiservice:
+    image: "${APISERVICE_IMAGE}"
+    environment:
+      OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EXCEPTION_LOG_ATTRIBUTES: "true"
+      OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EVENT_LOG_ATTRIBUTES: "true"
+      OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY: "in_memory"
+      ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
+      HTTP_PORTS: "${APISERVICE_PORT}"
+      KEYCLOAK_HTTP: "http://keycloak:8080"
+      services__keycloak__http__0: "http://keycloak:8080"
+      KEYCLOAK_MANAGEMENT: "http://keycloak:9000"
+      services__keycloak__management__0: "http://keycloak:9000"
+      ConnectionStrings__messaging: "amqp://guest:${MESSAGING_PASSWORD}@messaging:5672"
+      MESSAGING_HOST: "messaging"
+      MESSAGING_PORT: "5672"
+      MESSAGING_USERNAME: "guest"
+      MESSAGING_PASSWORD: "${MESSAGING_PASSWORD}"
+      MESSAGING_URI: "amqp://guest:${MESSAGING_PASSWORD}@messaging:5672"
+      ConnectionStrings__cache: "cache:6379,password=${CACHE_PASSWORD}"
+      CACHE_HOST: "cache"
+      CACHE_PORT: "6379"
+      CACHE_PASSWORD: "${CACHE_PASSWORD}"
+      CACHE_URI: "redis://:${CACHE_PASSWORD}@cache:6379"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://env-dashboard:18889"
+      OTEL_EXPORTER_OTLP_PROTOCOL: "grpc"
+      OTEL_SERVICE_NAME: "apiservice"
+    expose:
+      - "${APISERVICE_PORT}"
+    depends_on:
+      keycloak:
+        condition: "service_started"
+      messaging:
+        condition: "service_started"
+      cache:
+        condition: "service_started"
+    networks:
+      - "aspire"
+  webfrontend:
+    image: "${WEBFRONTEND_IMAGE}"
+    environment:
+      OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EXCEPTION_LOG_ATTRIBUTES: "true"
+      OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EVENT_LOG_ATTRIBUTES: "true"
+      OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY: "in_memory"
+      ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
+      HTTP_PORTS: "${WEBFRONTEND_PORT}"
+      KEYCLOAK_HTTP: "http://keycloak:8080"
+      services__keycloak__http__0: "http://keycloak:8080"
+      KEYCLOAK_MANAGEMENT: "http://keycloak:9000"
+      services__keycloak__management__0: "http://keycloak:9000"
+      APISERVICE_HTTP: "http://apiservice:${APISERVICE_PORT}"
+      services__apiservice__http__0: "http://apiservice:${APISERVICE_PORT}"
+      APISERVICE_HTTPS: "https://apiservice:${APISERVICE_PORT}"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://env-dashboard:18889"
+      OTEL_EXPORTER_OTLP_PROTOCOL: "grpc"
+      OTEL_SERVICE_NAME: "webfrontend"
+    ports:
+      - "${WEBFRONTEND_PORT}"
+    depends_on:
+      keycloak:
+        condition: "service_started"
+      apiservice:
+        condition: "service_started"
+    networks:
+      - "aspire"
+  chmicapalertprovider:
+    image: "${CHMICAPALERTPROVIDER_IMAGE}"
+    environment:
+      OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EXCEPTION_LOG_ATTRIBUTES: "true"
+      OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EVENT_LOG_ATTRIBUTES: "true"
+      OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY: "in_memory"
+      ConnectionStrings__messaging: "amqp://guest:${MESSAGING_PASSWORD}@messaging:5672"
+      MESSAGING_HOST: "messaging"
+      MESSAGING_PORT: "5672"
+      MESSAGING_USERNAME: "guest"
+      MESSAGING_PASSWORD: "${MESSAGING_PASSWORD}"
+      MESSAGING_URI: "amqp://guest:${MESSAGING_PASSWORD}@messaging:5672"
+      ConnectionStrings__chmiAlertDB: "Host=postgre;Port=5432;Username=postgres;Password=${POSTGRE_PASSWORD};Database=chmiAlertDB"
+      CHMIALERTDB_HOST: "postgre"
+      CHMIALERTDB_PORT: "5432"
+      CHMIALERTDB_USERNAME: "postgres"
+      CHMIALERTDB_PASSWORD: "${POSTGRE_PASSWORD}"
+      CHMIALERTDB_URI: "postgresql://postgres:${POSTGRE_PASSWORD}@postgre:5432/chmiAlertDB"
+      CHMIALERTDB_JDBCCONNECTIONSTRING: "jdbc:postgresql://postgre:5432/chmiAlertDB"
+      CHMIALERTDB_DATABASE: "chmiAlertDB"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://env-dashboard:18889"
+      OTEL_EXPORTER_OTLP_PROTOCOL: "grpc"
+      OTEL_SERVICE_NAME: "chmicapalertprovider"
+    depends_on:
+      messaging:
+        condition: "service_started"
+      postgre:
+        condition: "service_started"
+    networks:
+      - "aspire"
+  gateway:
+    image: "mcr.microsoft.com/dotnet/nightly/yarp:2.3.0-preview.4"
+    command:
+      - "/app/yarp.dll"
+    entrypoint:
+      - "dotnet"
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Production"
+      WEBFRONTEND_HTTP: "http://webfrontend:${WEBFRONTEND_PORT}"
+      REVERSEPROXY__ROUTES__route0__MATCH__PATH: "{**catch-all}"
+      REVERSEPROXY__ROUTES__route0__CLUSTERID: "cluster_webfrontend"
+      REVERSEPROXY__ROUTES__route1__MATCH__PATH: "/keycloak/{**catch-all}"
+      REVERSEPROXY__ROUTES__route1__CLUSTERID: "cluster_keycloak"
+      REVERSEPROXY__ROUTES__route1__TRANSFORMS__0__PathRemovePrefix: "/keycloak"
+      REVERSEPROXY__ROUTES__route1__TRANSFORMS__1__X-Forwarded: "Set"
+      REVERSEPROXY__ROUTES__route1__TRANSFORMS__1__HeaderPrefix: "X-Forwarded-"
+      REVERSEPROXY__ROUTES__route1__TRANSFORMS__2__Forwarded: "For,By,Host,Proto"
+      REVERSEPROXY__ROUTES__route1__TRANSFORMS__2__Action: "Set"
+      REVERSEPROXY__ROUTES__route1__TRANSFORMS__2__ForFormat: "Random"
+      REVERSEPROXY__ROUTES__route1__TRANSFORMS__2__ByFormat: "Random"
+      REVERSEPROXY__ROUTES__route2__MATCH__PATH: "/api/{**catch-all}"
+      REVERSEPROXY__ROUTES__route2__CLUSTERID: "cluster_apiservice"
+      REVERSEPROXY__ROUTES__route2__TRANSFORMS__0__PathRemovePrefix: "/api"
+      REVERSEPROXY__CLUSTERS__cluster_webfrontend__DESTINATIONS__destination1__ADDRESS: "https+http://webfrontend"
+      REVERSEPROXY__CLUSTERS__cluster_keycloak__DESTINATIONS__destination1__ADDRESS: "http://keycloak"
+      REVERSEPROXY__CLUSTERS__cluster_apiservice__DESTINATIONS__destination1__ADDRESS: "https+http://apiservice"
+      services__webfrontend__http__0: "http://webfrontend:${WEBFRONTEND_PORT}"
+      WEBFRONTEND_HTTPS: "https://webfrontend:${WEBFRONTEND_PORT}"
+      KEYCLOAK_HTTP: "http://keycloak:8080"
+      services__keycloak__http__0: "http://keycloak:8080"
+      KEYCLOAK_MANAGEMENT: "http://keycloak:9000"
+      services__keycloak__management__0: "http://keycloak:9000"
+      APISERVICE_HTTP: "http://apiservice:${APISERVICE_PORT}"
+      services__apiservice__http__0: "http://apiservice:${APISERVICE_PORT}"
+      APISERVICE_HTTPS: "https://apiservice:${APISERVICE_PORT}"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://env-dashboard:18889"
+      OTEL_EXPORTER_OTLP_PROTOCOL: "grpc"
+      OTEL_SERVICE_NAME: "gateway"
+    ports:
+      - "8080:5000"
+    expose:
+      - "5000"
+    depends_on:
+      webfrontend:
+        condition: "service_started"
+      apiservice:
+        condition: "service_started"
+      keycloak:
+        condition: "service_started"
+    networks:
+      - "aspire"
+networks:
+  aspire:
+    driver: "bridge"
+volumes:
+  weathereye.apphost-efe3d9e3ea-cache-data:
+    driver: "local"
+  postgreData:
+    driver: "local"
+  postgreKCData:
+    driver: "local"
+  rabbitmqWeatherEyeDataVolume:
+    driver: "local"

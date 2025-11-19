@@ -2,25 +2,26 @@
 
 	<PropertyGroup>
 		<TargetFramework>net10.0</TargetFramework>
-		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
-		<UserSecretsId>dotnet-ChmiCapAlertProvider-db031590-b844-45d9-a927-03eef75e2fca</UserSecretsId>
+		<Nullable>enable</Nullable>
 		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
 	</PropertyGroup>
 
 	<ItemGroup>
+		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.22.1" />
 		<PackageReference Include="Aspire.Npgsql" Version="13.0.0" />
 		<PackageReference Include="DevExpress.Xpo" Version="25.1.6" />
 		<PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.0" />
-		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.22.1" />
-		<PackageReference Include="RestSharp" Version="112.1.0" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<ProjectReference Include="..\CAP\CAP.csproj" />
-		<ProjectReference Include="..\MessagingContracts\MessagingContracts.csproj" />
-		<ProjectReference Include="..\WeatherEye.ServiceDefaults\WeatherEye.ServiceDefaults.csproj" />
+		<PackageReference Include="DevExpress.Persistent.BaseImpl.Xpo" Version="25.1.6" />
+		<PackageReference Include="DevExpress.ExpressApp.Security.Xpo" Version="25.1.6" />
 		<PackageReference Include="WolverineFx" Version="5.2.0" />
 		<PackageReference Include="WolverineFx.RabbitMQ" Version="5.2.0" />
 	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\MessagingContracts\MessagingContracts.csproj" />
+		<ProjectReference Include="..\WeatherEye.ServiceDefaults\WeatherEye.ServiceDefaults.csproj" />
+
+	</ItemGroup>
+
 </Project>

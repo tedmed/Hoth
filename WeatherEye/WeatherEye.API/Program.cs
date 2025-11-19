@@ -1,5 +1,7 @@
+using ImTools;
 using JasperFx.Core;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Configuration;
 using OpenTelemetry.Trace;
 using Scalar.AspNetCore;
@@ -32,10 +34,15 @@ services.AddAuthentication()
                     options =>
                     {
                         options.Audience = "account";
-                        if (builder.Environment.IsDevelopment())
+                        options.RequireHttpsMetadata = false;
+
+                        if (!builder.Environment.IsDevelopment())
                         {
-                            options.RequireHttpsMetadata = false;
+                            options.Authority = "https://auth.weathereye.eu/realms/WeatherEye";
                         }
+                        //if (builder.Environment.IsDevelopment())
+                        //{
+                        //}
                     });
 
 
@@ -69,21 +76,34 @@ if (rabbitmqEndpoint is not null)
 }
 
 
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders =
+        ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+});
+
 
 var app = builder.Build();
+
+app.UseForwardedHeaders();
 
 app.MapDefaultEndpoints();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+//if (app.Environment.IsDevelopment())
+//{
+//    app.MapOpenApi();
+//    app.MapScalarApiReference();
+//}
+app.MapOpenApi();
+app.MapScalarApiReference(opts =>
 {
-    app.MapOpenApi();
-    app.MapScalarApiReference();
-}
-
+    opts.WithProxy("https://api.weathereye.eu");
+});
+    
 app.UseOutputCache();
-
-app.UseHttpsRedirection();
+app.UseRouting();
+//app.UseHttpsRedirection();
 
 app.UseAuthentication();
 

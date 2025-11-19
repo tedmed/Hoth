@@ -1,28 +1,39 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <Sdk Name="Aspire.AppHost.Sdk" Version="9.5.2" />
+  <Sdk Name="Aspire.AppHost.Sdk" Version="13.0.0" />
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net9.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
+	  <TargetFramework>net10.0</TargetFramework>
+	  <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <UserSecretsId>04cb74cd-4da3-4333-95a4-78a50f237fee</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\AuthProvider\UserService.csproj" />
     <ProjectReference Include="..\ChmiCapAlertProvider\ChmiCapAlertProvider.csproj" />
-    <ProjectReference Include="..\WeatherEye.AlertProvider\WeatherEye.API.csproj" />
-    <ProjectReference Include="..\WeatherEye.ApiService\WeatherEye.ApiService.csproj" />
+    <ProjectReference Include="..\WeatherEye.API\WeatherEye.API.csproj" />
     <ProjectReference Include="..\WeatherEye.Web\WeatherEye.Web.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Aspire.Hosting.AppHost" Version="9.5.2" />
-    <PackageReference Include="Aspire.Hosting.Keycloak" Version="9.5.2-preview.1.25522.3" />
-    <PackageReference Include="Aspire.Hosting.PostgreSQL" Version="9.5.2" />
-    <PackageReference Include="Aspire.Hosting.RabbitMQ" Version="9.5.2" />
-    <PackageReference Include="Aspire.Hosting.Redis" Version="9.5.2" />
+    <PackageReference Include="Aspire.Hosting.AppHost" Version="13.0.0" />
+    <PackageReference Include="Aspire.Hosting.Docker" Version="13.0.0-preview.1.25560.3" />
+    <PackageReference Include="Aspire.Hosting.Keycloak" Version="13.0.0-preview.1.25560.3" />
+    <PackageReference Include="Aspire.Hosting.PostgreSQL" Version="13.0.0" />
+    <PackageReference Include="Aspire.Hosting.RabbitMQ" Version="13.0.0" />
+    <PackageReference Include="Aspire.Hosting.Redis" Version="13.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="DBCreateScripts\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="DBCreateScripts\KeyCloakDBCreate.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

@@ -8,7 +8,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WeatherEye.ServiceDefaults"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WeatherEye.Tests", "WeatherEye.Tests\WeatherEye.Tests.csproj", "{E3EB4DCA-DAC4-0E34-8843-D3E63301E75E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WeatherEye.API", "WeatherEye.AlertProvider\WeatherEye.API.csproj", "{DEB91979-38C4-2554-80DC-BE9681A10BCF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WeatherEye.API", "WeatherEye.API\WeatherEye.API.csproj", "{DEB91979-38C4-2554-80DC-BE9681A10BCF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CAP", "CAP\CAP.csproj", "{917E94C0-4775-4009-B124-6EA0EC3E50B2}"
 EndProject
@@ -17,6 +17,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessagingContracts", "MessagingContracts\MessagingContracts.csproj", "{A6CD44A2-A0FB-4BC2-9C28-80F9694DC25F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WeatherEye.Web", "WeatherEye.Web\WeatherEye.Web.csproj", "{78BD8BE0-7206-4DD7-BD84-85C7D467EDAC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserService", "AuthProvider\UserService.csproj", "{15D1B89D-B193-4102-92E5-B2D7BD8250AA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -56,6 +58,10 @@ Global
 		{78BD8BE0-7206-4DD7-BD84-85C7D467EDAC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{78BD8BE0-7206-4DD7-BD84-85C7D467EDAC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{78BD8BE0-7206-4DD7-BD84-85C7D467EDAC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{15D1B89D-B193-4102-92E5-B2D7BD8250AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{15D1B89D-B193-4102-92E5-B2D7BD8250AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{15D1B89D-B193-4102-92E5-B2D7BD8250AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{15D1B89D-B193-4102-92E5-B2D7BD8250AA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
