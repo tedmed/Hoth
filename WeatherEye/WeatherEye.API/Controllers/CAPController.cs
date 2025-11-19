@@ -10,7 +10,7 @@ using Wolverine.Runtime.Handlers;
 namespace WeatherEye.API.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     public class CAPController : ControllerBase
     {
         private readonly ILogger<CAPController> _logger;
@@ -45,17 +45,10 @@ namespace WeatherEye.API.Controllers
         public async Task<IActionResult> GetAvailableRegions()
         {
             using IServiceScope scope = serviceScopeFactory.CreateScope();
-
             var bus = scope.ServiceProvider.GetRequiredService<IMessageContext>();
-            //CaptureCascadingMessages
-            var res = await bus.InvokeAsync<AlertResponse>(new AlertRequest());
 
-            HashSet<string> regions = new HashSet<string>();
-            foreach (var record in res.records)
-            {
-                regions.Add(record.AreaDesc);
-            }
-            return Ok(regions);
+            var res = await bus.InvokeAsync<AlertAreaResponse>(new AlertAreaRequest());
+            return Ok(res.regions);
         }
 
     }
