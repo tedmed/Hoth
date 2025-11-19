@@ -7,7 +7,7 @@ public class CAPApiClient(HttpClient httpClient)
     {
         List<AlertInfoDTO>? AlertInfos = null;
 
-        await foreach (var alert in httpClient.GetFromJsonAsAsyncEnumerable<AlertInfoDTO>("/api/CAP/Alarms", cancellationToken))
+        await foreach (var alert in httpClient.GetFromJsonAsAsyncEnumerable<AlertInfoDTO>("/CAP/Alarms", cancellationToken))
         {
             if (alert is not null)
             {
@@ -23,7 +23,7 @@ public class CAPApiClient(HttpClient httpClient)
     {
         HashSet<string> AlertInfos = new();
 
-        await foreach (var alertInfo in httpClient.GetFromJsonAsAsyncEnumerable<string>("/api/CAP/AvailableRegions", cancellationToken))
+        await foreach (var alertInfo in httpClient.GetFromJsonAsAsyncEnumerable<string>("/CAP/AvailableRegions", cancellationToken))
         {
             if (alertInfo is not null)
             {

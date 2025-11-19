@@ -1,38 +1,64 @@
 ﻿using CAP;
+using DevExpress.Xpo;
+using RabbitMQ.Client.Exceptions;
 using System;
-using System.ComponentModel.DataAnnotations;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using System.Text;
+using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace ChmiCapAlertProvider.DAOs
 {
-    public class AreaDAO
+    public class AreaDAO : XPLiteObject
     {
+        private Guid fId;
         [Key]
-        public Guid Id { get; set; } = Guid.NewGuid();
-
-        public string AreaDesc { get; set; }
-        public List<string> Polygons { get; set; }
-        public List<string> Circles { get; set; }
-        public Dictionary<string, string> Geocodes { get; set; }
-        public decimal? Altitude { get; set; }
-        public decimal? Ceiling { get; set; }
-
-        public AreaDAO()
+        public Guid Id
         {
-
+            get { return fId; }
+            set { SetPropertyValue<Guid>(nameof(Id), ref fId, value); }
         }
-        public AreaDAO(AlertInfoArea area)
+        private string fAreaDesc;
+        [Size(-1)]
+        public string AreaDesc
+        {
+            get { return fAreaDesc; }
+            set { SetPropertyValue<string>(nameof(AreaDesc), ref fAreaDesc, value); }
+        }
+
+        private decimal? fAltitude;
+        public decimal? Altitude
+        {
+            get { return fAltitude; }
+            set { SetPropertyValue<decimal?>(nameof(Altitude), ref fAltitude, value); }
+        }
+        
+        private decimal? fCeiling;
+        public decimal? Ceiling
+        {
+            get { return fCeiling; }
+            set { SetPropertyValue<decimal?>(nameof(Ceiling), ref fCeiling, value); }
+        }
+
+        [Association("AlertRefArea")]
+        public XPCollection<AlertDAO> Alerts
+        {
+            get { return GetCollection<AlertDAO>(nameof(Alerts)); }
+        }
+
+        public AreaDAO(Session session) : base(session) { }
+
+        public override void AfterConstruction()
+        {
+            Id = Guid.NewGuid();
+            base.AfterConstruction();
+        }
+
+        public void SetProperties(AlertInfoArea area)
         {
             AreaDesc = area.AreaDesc;
-            Polygons = new List<string>();
-            Polygons.AddRange(area.Polygon);
-            Circles = new List<string>();
-            Circles.AddRange(area.Circle);
-            Geocodes = new Dictionary<string, string>();
-            foreach (var g in area.Geocode)
-            {
-                Geocodes.Add(g.Value, g.ValueName);
-            }
             Altitude = area.Altitude;
             Ceiling = area.Ceiling;
         }

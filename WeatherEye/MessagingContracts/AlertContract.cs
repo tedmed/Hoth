@@ -10,5 +10,8 @@ namespace MessagingContracts
 {
     public record AlertRequest;
     public record AlertResponse(IEnumerable<AlertInfoDTO> records);
-    
+
+    public record AlertAreaRequest;
+    public record AlertAreaResponse(IEnumerable<string> regions);
+
 }

@@ -3,6 +3,7 @@ using DevExpress.Xpo;
 using RabbitMQ.Client.Exceptions;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
@@ -168,6 +169,13 @@ namespace ChmiCapAlertProvider.DAOs
             set { SetPropertyValue<DateTime?>(nameof(Effective), ref fEffective, value); }
         }
 
+        [Association("AlertRefArea")]
+        public XPCollection<AreaDAO> Areas
+        {
+            get { return GetCollection<AreaDAO>(nameof(Areas)); }
+        }
+
+
         public override void AfterConstruction()
         {
             Id = Guid.NewGuid();
@@ -189,10 +197,10 @@ namespace ChmiCapAlertProvider.DAOs
 
             if (info.ResponseTypeSpecified)
             {
-                ResponseType = info.ResponseType.Select(rt => rt.ToString()).Aggregate((a, b) => a + "," + b);
+                ResponseType = info.ResponseType.Select(rt => rt.ToString()).Aggregate((a, b) => a + ";" + b);
             }
             Urgency = info.Urgency;
-            Category = info.Category.Select(c => c.ToString()).Aggregate((a, b) => a + "," + b);
+            Category = info.Category.Select(c => c.ToString()).Aggregate((a, b) => a + ";" + b);
 
             Language = info.Language;
             Severity = info.Severity;
@@ -207,7 +215,27 @@ namespace ChmiCapAlertProvider.DAOs
             Instruction = info.Instruction;
             Web = info.Web;
             Contact = info.Contact;
-            //Area = info.Area.Select(a => new AreaDAO(a)).ToList();
+
+            foreach (var area in info.Area)
+            {
+                XPQuery<AreaDAO> query = Session.Query<AreaDAO>();
+                var areaDAOExisting = query.Where(a => a.AreaDesc == area.AreaDesc)
+                    .FirstOrDefault();
+
+                if (areaDAOExisting is not null)
+                {
+                    Areas.Add(areaDAOExisting);
+                }
+                else
+                {
+                    AreaDAO areaDAO = new AreaDAO(Session);
+                    areaDAO.SetProperties(area);
+                    areaDAO.Save();
+                    Areas.Add(areaDAO);
+                }
+
+            }
+
         }
     }
 }
