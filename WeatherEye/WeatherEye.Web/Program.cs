@@ -129,7 +129,6 @@ else
 app.UseCookiePolicy();
 //app.UseHttpsRedirection();
 
-// Authentication/Authorization hned po cookie policy
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -144,6 +143,7 @@ app.MapStaticAssets();
 app.UseAntiforgery();
 
 app.MapStaticAssets();
+
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 

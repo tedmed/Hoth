@@ -38,7 +38,7 @@ services.AddAuthentication()
 
                         if (!builder.Environment.IsDevelopment())
                         {
-                            options.Authority = "https://weathereye.eu/keycloak/realms/WeatherEye";
+                            options.Authority = "https://auth.weathereye.eu/realms/WeatherEye";
                         }
                         //if (builder.Environment.IsDevelopment())
                         //{
@@ -98,7 +98,7 @@ app.MapDefaultEndpoints();
 app.MapOpenApi();
 app.MapScalarApiReference(opts =>
 {
-    opts.WithProxy("https://weathereye.eu/api");
+    opts.WithProxy("https://api.weathereye.eu");
 });
     
 app.UseOutputCache();
