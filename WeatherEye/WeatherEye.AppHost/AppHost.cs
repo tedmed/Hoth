@@ -41,7 +41,7 @@ var keycloakDbUrl = ReferenceExpression.Create(
 );
 
 var keycloak = builder.AddKeycloak("keycloak", 8081)
-    .WithEndpoint("http", e => e.IsExternal = true)    
+    .WithEndpoint("http", e => e.IsExternal = true)
     //.WithHttpsEndpoint(9443,9443)
     .WithReference(kcDb)
     .WaitFor(kcDb)
@@ -64,11 +64,11 @@ if (builder.Environment.IsDevelopment() == false)
     // Reverse proxy nastavení
     //.WithEnvironment("KC_PROXY", "edge")
     //.WithEnvironment("KC_PROXY_PROTOCOL_ENABLED", "true")
-    
-    //.WithEnvironment("KC_HOSTNAME_STRICT_HTTPS", "false")
 
-    .WithEnvironment("KC_HOSTNAME", "https://weathereye.eu/keycloak")
-    .WithEnvironment("KC_HOSTNAME_BACKCHANNEL_DYNAMIC", "true");
+    //.WithEnvironment("KC_HOSTNAME_STRICT_HTTPS", "false")
+    .WithEnvironment("KC_HOSTNAME_BACKCHANNEL_DYNAMIC", "true")
+
+    .WithEnvironment("KC_HOSTNAME", "https://weathereye.eu/keycloak");
     // Nejzásadnìjší — nastaví venkovní URL HOST NAME
     //.WithEnvironment("KC_HOSTNAME", "weathereye.eu")
     //.WithEnvironment("KC_HOSTNAME_PORT","443")
@@ -107,13 +107,13 @@ var apiService = builder.AddProject<Projects.WeatherEye_API>("apiservice")
 
 var webfrontend = builder.AddProject<Projects.WeatherEye_Web>("webfrontend")
     .WithExternalHttpEndpoints()
+    .WithEndpoint(name: "frontend-fixed", scheme: "http", port: 8095)  
     .WithHttpHealthCheck("/health")
     .WithReference(keycloak)
     //.WithReference(realm)
     .WaitFor(keycloak)
     .WithReference(apiService)
     .WaitFor(apiService);
-
 
 
 var chmiAlertProviderDB = postgre.AddDatabase("chmiAlertDB");
@@ -131,14 +131,13 @@ var gateway = builder.AddYarp("gateway")
                      .WithOtlpExporter()
                      .WithConfiguration(yarp =>
                      {
-
                          // Configure routes programmatically
                          var frontend = yarp.AddRoute("{**catch-all}", webfrontend)
-                         .WithTransformXForwarded(
-                             xHost: Yarp.ReverseProxy.Transforms.ForwardedTransformActions.Set,
-                             xProto: Yarp.ReverseProxy.Transforms.ForwardedTransformActions.Set
-                             )
+                         .WithTransformUseOriginalHostHeader()
+                         
+                         .WithTransformXForwarded()
                           .WithTransformForwarded();
+
                          if (!builder.Environment.IsDevelopment())
                          {
                              frontend
@@ -149,19 +148,25 @@ var gateway = builder.AddYarp("gateway")
                          {
                              frontend
                           .WithTransformRequestHeader("X-Forwarded-Host", "localhost:8080");
-                          //.WithTransformRequestHeader("X-Forwarded-Proto", "http");
+                             //.WithTransformRequestHeader("X-Forwarded-Proto", "http");
                          }
 
-                             yarp.AddRoute("/keycloak/{**catch-all}", keycloak)
-                             .WithTransformPathRemovePrefix("/keycloak")
-                             .WithTransformXForwarded()
-                             .WithTransformForwarded()
+                         yarp.AddRoute("/keycloak/{**catch-all}", keycloak)
+                         .WithTransformUseOriginalHostHeader()
 
-                             .WithTransformRequestHeader("X-Forwarded-Port", "443")
-                             .WithTransformRequestHeader("X-Forwarded-Prefix", "/keycloak");
+                         .WithTransformPathRemovePrefix("/keycloak")
+                         .WithTransformXForwarded()
+                         .WithTransformForwarded()
+
+                         .WithTransformRequestHeader("X-Forwarded-Port", "443")
+                         .WithTransformRequestHeader("X-Forwarded-Proto", "https")
+
+                         .WithTransformRequestHeader("X-Forwarded-Prefix", "/keycloak");
 
 
                          yarp.AddRoute("/api/{**catch-all}", apiService)
+                         .WithTransformUseOriginalHostHeader()
+
                          .WithTransformPathRemovePrefix("/api")
                          .WithTransformXForwarded()
                          .WithTransformForwarded();
