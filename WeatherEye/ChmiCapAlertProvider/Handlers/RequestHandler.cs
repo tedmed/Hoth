@@ -1,5 +1,7 @@
 ﻿using CAP;
 using CAP.DTOs;
+using ChmiCapAlertProvider.DAOs;
+using DevExpress.Xpo;
 using MessagingContracts;
 using RestSharp;
 using System;
@@ -37,49 +39,49 @@ namespace ChmiCapAlertProvider.Handlers
         public AlertResponse HandleAlertRequest(MessagingContracts.AlertRequest request)
         {
             _logger.LogInformation("Handling AlertRequest");
-            RestRequest restRequest = new RestRequest();
-            var response = _client.GetAsync(restRequest).Result;
-            List<AlertInfoDTO> alertInfosDTOs= new();
-            
-            if (response.IsSuccessful)
-            {
-                _logger.LogInformation("ChmiCap data retrieved successfully at: {time}", DateTimeOffset.Now);
-                XmlSerializer xmlSerializer = new XmlSerializer(typeof(CAP.Alert));
-                using StringReader reader = new StringReader(response.Content!);
-                CAP.Alert? alert = (CAP.Alert?)xmlSerializer.Deserialize(reader);
-                if (alert is not null)
-                {
-                    foreach (var info in alert.Info)
-                    {
-                        foreach (var area in info.Area)
-                        {
-                            _logger.LogInformation("Found AlertInfo: Event - {event}, Headline - {headline}, Area - {areaDesc}, Expires - {expires}", info.Event, info.Headline, area.AreaDesc, info.Expires);
-                            var dto = new AlertInfoDTO()
-                            {
-                                SenderName = info.SenderName,
-                                Event = info.Event,
-                                Urgency = Enum.GetName(typeof(AlertInfoUrgency), info.Urgency) ?? string.Empty,
-                                Severity = Enum.GetName(typeof(AlertInfoSeverity), info.Severity) ?? string.Empty,
-                                Certainty = Enum.GetName(typeof(AlertInfoCertainty), info.Certainty) ?? string.Empty,
-                                Language = info.Language,
-                                Onset = info.Onset,
-                                Expires = info.Expires,
-                                Headline = info.Headline,
-                                Description = info.Description,
-                                Instruction = info.Instruction,
-                                AreaDesc = area.AreaDesc
-                            };
-                            alertInfosDTOs.Add(dto);
-                        }
-                    }
-                }
 
+            XPQuery<AlertDAO> alertDAOs = Session.DefaultSession.Query<AlertDAO>();
+
+            var relevantAlerts = alertDAOs.ToList();
+
+            List<AlertInfoDTO> alertInfosDTOs = new();
+
+
+            foreach (var info in alertDAOs)
+            {
+                foreach (var area in info.Areas)
+                {
+                    _logger.LogInformation("Found AlertInfo: Event - {event}, Headline - {headline}, Area - {areaDesc}, Expires - {expires}", info.Event, info.Headline, area.AreaDesc, info.Expires);
+                    var dto = new AlertInfoDTO()
+                    {
+                        SenderName = info.SenderName,
+                        Event = info.Event,
+                        Urgency = Enum.GetName(typeof(AlertInfoUrgency), info.Urgency) ?? string.Empty,
+                        Severity = Enum.GetName(typeof(AlertInfoSeverity), info.Severity) ?? string.Empty,
+                        Certainty = Enum.GetName(typeof(AlertInfoCertainty), info.Certainty) ?? string.Empty,
+                        Language = info.Language,
+                        Onset = info.Onset ?? DateTime.MinValue,
+                        Expires = info.Expires ?? DateTime.MinValue,
+                        Headline = info.Headline,
+                        Description = info.Description,
+                        Instruction = info.Instruction,
+                        AreaDesc = area.AreaDesc
+                    };
+                    alertInfosDTOs.Add(dto);
+
+                }
             }
             _logger.LogInformation($"Returning {alertInfosDTOs.Count} alerts");
-            //return JsonSerializer.Serialize(alertInfos);
             return new AlertResponse(alertInfosDTOs);
-            //return alertInfos;
+        }
 
+        [WolverineHandler]
+        public AlertAreaResponse HandleAreaRequest(MessagingContracts.AlertAreaRequest request)
+        {
+            _logger.LogInformation("Handling AlertAreaRequest");
+            XPQuery<AreaDAO> areas = Session.DefaultSession.Query<AreaDAO>();
+           
+            return new AlertAreaResponse(areas.Select(x => x.AreaDesc).ToList());
         }
     }
 }
