@@ -107,6 +107,7 @@ var apiService = builder.AddProject<Projects.WeatherEye_API>("apiservice")
     {
         service.Name = "apiservice";
         service.Ports.Add("7721:7721");
+        service.Restart = "unless-stopped";
     });
 
 var webfrontend = builder.AddProject<Projects.WeatherEye_Web>("webfrontend")
@@ -121,6 +122,7 @@ var webfrontend = builder.AddProject<Projects.WeatherEye_Web>("webfrontend")
     {
         service.Name = "webfrontend";
         service.Ports.Add("7722:7722");
+        service.Restart = "unless-stopped";
     });
 
 
@@ -131,8 +133,13 @@ builder.AddProject<Projects.ChmiCapAlertProvider>("chmicapalertprovider")
     .WithReference(rabbitmq)
     .WaitFor(rabbitmq)
     .WithReference(chmiAlertProviderDB)
-    .WaitFor(chmiAlertProviderDB);
-;
+    .WaitFor(chmiAlertProviderDB)
+    .PublishAsDockerComposeService((resource, service) =>
+    {
+        service.Name = "chmicapalertprovider";
+        service.Restart = "unless-stopped";
+    });
+
 
 
 
