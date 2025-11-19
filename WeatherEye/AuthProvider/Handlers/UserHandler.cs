@@ -20,13 +20,6 @@ namespace UserService.Handlers
             this.objectSpaceFactory = objectSpaceFactory;
         }
 
-        [WolverineHandler]
-        public UserLoginResponse HandleUserLoginRequest(UserLoginRequest request)
-        {
-            var osProv = objectSpaceFactory.CreateObjectSpaceProviders();
-            //osProv.First().crea
-            return new UserLoginResponse(false,string.Empty);
 
-        }
     }
 }
