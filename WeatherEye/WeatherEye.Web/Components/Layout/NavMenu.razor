@@ -1,10 +1,10 @@
 ﻿
 <MudNavMenu>
     <MudNavLink Href="" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">Home</MudNavLink>
-    @* <MudNavLink Href="counter" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Add">Counter</MudNavLink> *@
     <Microsoft.AspNetCore.Components.Authorization.AuthorizeView>
         <Authorized>
-            <MudNavLink Href="weather" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.List">Weather</MudNavLink>
+			<MudNavLink Href="weather" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.List">Weather</MudNavLink>
+			<MudNavLink Href="notifications" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Doorbell">Notifications</MudNavLink>
         </Authorized>
     </Microsoft.AspNetCore.Components.Authorization.AuthorizeView>
     <MudNavLink Href="Alerts" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.List">Alerts</MudNavLink>
