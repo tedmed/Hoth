@@ -79,7 +79,7 @@ if (rabbitmqEndpoint is not null)
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
 {
     options.ForwardedHeaders =
-        ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+        ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedHost;
 });
 
 
@@ -96,10 +96,7 @@ app.MapDefaultEndpoints();
 //    app.MapScalarApiReference();
 //}
 app.MapOpenApi();
-app.MapScalarApiReference(opts =>
-{
-    opts.WithProxy("https://api.weathereye.eu");
-});
+app.MapScalarApiReference();
     
 app.UseOutputCache();
 app.UseResponseCaching();
