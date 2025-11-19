@@ -68,7 +68,7 @@ if (builder.Environment.IsDevelopment() == false)
     //.WithEnvironment("KC_HOSTNAME_STRICT_HTTPS", "false")
     .WithEnvironment("KC_HOSTNAME_BACKCHANNEL_DYNAMIC", "true")
 
-    .WithEnvironment("KC_HOSTNAME", "https://weathereye.eu/keycloak");
+    .WithEnvironment("KC_HOSTNAME", "https://auth.weathereye.eu/");
     // Nejzásadnìjší — nastaví venkovní URL HOST NAME
     //.WithEnvironment("KC_HOSTNAME", "weathereye.eu")
     //.WithEnvironment("KC_HOSTNAME_PORT","443")
