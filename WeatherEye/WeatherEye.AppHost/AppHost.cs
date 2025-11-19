@@ -96,14 +96,19 @@ var rabbitmq = builder.AddRabbitMQ("messaging")
 
 var apiService = builder.AddProject<Projects.WeatherEye_API>("apiservice")
     .WithHttpHealthCheck("/health")
-    .WithExternalHttpEndpoints()
+    .WithExternalHttpEndpoints()    
     .WithReference(keycloak)
     //.WithReference(realm)
     .WaitFor(keycloak)
     .WithReference(rabbitmq)
     .WaitFor(rabbitmq)
     .WithReference(cache)
-    .WaitFor(cache);
+    .WaitFor(cache)
+    .PublishAsDockerComposeService((resource, service) =>
+    {
+        service.Name = "apiservice";
+        service.Ports.Add("7721:7721");
+    });
 
 var webfrontend = builder.AddProject<Projects.WeatherEye_Web>("webfrontend")
     .WithExternalHttpEndpoints()
@@ -112,7 +117,12 @@ var webfrontend = builder.AddProject<Projects.WeatherEye_Web>("webfrontend")
     //.WithReference(realm)
     .WaitFor(keycloak)
     .WithReference(apiService)
-    .WaitFor(apiService);
+    .WaitFor(apiService)
+    .PublishAsDockerComposeService((resource, service) =>
+    {
+        service.Name = "webfrontend";
+        service.Ports.Add("7722:7722");
+    });
 
 
 var chmiAlertProviderDB = postgre.AddDatabase("chmiAlertDB");
