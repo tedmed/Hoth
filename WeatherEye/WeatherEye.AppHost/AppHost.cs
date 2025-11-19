@@ -96,7 +96,7 @@ var rabbitmq = builder.AddRabbitMQ("messaging")
 
 var apiService = builder.AddProject<Projects.WeatherEye_API>("apiservice")
     .WithHttpHealthCheck("/health")
-
+    .WithExternalHttpEndpoints()
     .WithReference(keycloak)
     //.WithReference(realm)
     .WaitFor(keycloak)
