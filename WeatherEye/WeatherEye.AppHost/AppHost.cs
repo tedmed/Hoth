@@ -135,64 +135,6 @@ builder.AddProject<Projects.ChmiCapAlertProvider>("chmicapalertprovider")
     .WaitFor(chmiAlertProviderDB);
 ;
 
-var gateway = builder.AddYarp("gateway")
-                     .WithHostPort(8080)
-                     .WithOtlpExporter()
-                     .WithConfiguration(yarp =>
-                     {
-                         // Configure routes programmatically
-                         var frontend = yarp.AddRoute("{**catch-all}", webfrontend)
-                         .WithTransformUseOriginalHostHeader()
-                         
-                         .WithTransformXForwarded()
-                          .WithTransformForwarded();
-
-                         if (!builder.Environment.IsDevelopment())
-                         {
-                             frontend
-                          .WithTransformRequestHeader("X-Forwarded-Host", "weathereye.eu")
-                          .WithTransformRequestHeader("X-Forwarded-Proto", "https");
-                         }
-                         else
-                         {
-                             frontend
-                          .WithTransformRequestHeader("X-Forwarded-Host", "localhost:8080");
-                             //.WithTransformRequestHeader("X-Forwarded-Proto", "http");
-                         }
-
-                         yarp.AddRoute("/keycloak/{**catch-all}", keycloak)
-                         .WithTransformUseOriginalHostHeader()
-
-                         .WithTransformPathRemovePrefix("/keycloak")
-                         .WithTransformXForwarded()
-                         .WithTransformForwarded()
-
-                         .WithTransformRequestHeader("X-Forwarded-Port", "443")
-                         .WithTransformRequestHeader("X-Forwarded-Proto", "https")
-
-                         .WithTransformRequestHeader("X-Forwarded-Prefix", "/keycloak");
-
-
-                         yarp.AddRoute("/api/{**catch-all}", apiService)
-                         .WithTransformUseOriginalHostHeader()
-
-                         .WithTransformPathRemovePrefix("/api")
-                         .WithTransformXForwarded()
-                         .WithTransformForwarded();
-
-                     })
-                     .WaitFor(webfrontend)
-                     .WaitFor(apiService)
-                     .WaitFor(keycloak)
-                     .PublishAsDockerComposeService((resource, service) =>
-                     {
-                         service.Name = "gateway";
-                         service.Ports.Add("8080:5000");
-                     });
-
-
-webfrontend.WithReference(gateway);
-apiService.WithReference(gateway);
 
 
 builder.Build().Run();
