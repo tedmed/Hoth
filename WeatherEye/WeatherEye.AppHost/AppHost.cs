@@ -107,7 +107,6 @@ var apiService = builder.AddProject<Projects.WeatherEye_API>("apiservice")
 
 var webfrontend = builder.AddProject<Projects.WeatherEye_Web>("webfrontend")
     .WithExternalHttpEndpoints()
-    .WithEndpoint(name: "frontend-fixed", scheme: "http", port: 8095)  
     .WithHttpHealthCheck("/health")
     .WithReference(keycloak)
     //.WithReference(realm)
