@@ -1,6 +1,6 @@
 ﻿using CAP;
 using CAP.DTOs;
-using ChmiCapAlertProvider.DAOs;
+using ChmiCapAlertProvider.DAO;
 using DevExpress.Xpo;
 using MessagingContracts;
 using RestSharp;

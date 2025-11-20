@@ -9,7 +9,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace ChmiCapAlertProvider.DAOs
+namespace ChmiCapAlertProvider.DAO
 {
     public class AlertDAO : XPLiteObject
     {

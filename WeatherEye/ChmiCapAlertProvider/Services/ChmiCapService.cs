@@ -1,4 +1,4 @@
-﻿using ChmiCapAlertProvider.DAOs;
+﻿using ChmiCapAlertProvider.DAO;
 using Microsoft.Extensions.DependencyInjection;
 using RestSharp;
 using System.Xml.Serialization;
