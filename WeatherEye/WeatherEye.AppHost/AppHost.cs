@@ -140,6 +140,24 @@ builder.AddProject<Projects.ChmiCapAlertProvider>("chmicapalertprovider")
         service.Restart = "unless-stopped";
     });
 
+var postgreUser= builder.AddPostgres("postgreUser")
+    .WithContainerName("postgreUser")
+    .WithDataVolume("postgreUserData")
+    .WithPgAdmin();
+
+var userDB = postgreUser.AddDatabase("UserDB", "userdb");
+
+builder.AddProject<Projects.UserService>("userservice")
+    .WithReference(rabbitmq)
+    .WaitFor(rabbitmq)
+    .WithReference(userDB)
+    .WaitFor(userDB)
+    .PublishAsDockerComposeService((resource, service) =>
+    {
+        service.Name = "userservice";
+        service.Restart = "unless-stopped";
+    });
+
 
 
 

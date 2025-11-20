@@ -17,7 +17,7 @@ using UserService.Services;
 using Wolverine;
 using Wolverine.RabbitMQ;
 
-const string dbConnectionName = "AuthProviderDB";
+const string dbConnectionName = "UserDB";
 
 var builder = Host.CreateApplicationBuilder(args);
 
@@ -54,6 +54,9 @@ var conString = builder.Configuration.GetConnectionString(dbConnectionName);
 
 if (conString is null) throw new ArgumentNullException($"ConnectionString:{dbConnectionName}");
 
+
+if (conString is null) throw new ArgumentNullException("ConnectionString:chmiAlertDB");
+
 Dictionary<string, string> conStringParsed = new();
 
 foreach (var item in conString.Split(";"))
@@ -74,36 +77,6 @@ var finalConnectionString =
 XpoDefault.DataLayer = XpoDefault.GetDataLayer(finalConnectionString, AutoCreateOption.DatabaseAndSchema);
 
 builder.AddServiceDefaults();
-//builder.Services.AddHostedService<ChmiCapService>();
-builder.Services
-    .AddSingleton<ITypesInfo>(s => {
-        var typesInfo = XafTypesInfo.Instance;
-        XpoTypesInfoHelper.ForceInitialize((TypesInfo)typesInfo);
-        typesInfo.RegisterEntity(typeof(PermissionPolicyUser));
-        typesInfo.RegisterEntity(typeof(PermissionPolicyRole));
-        return typesInfo;
-    })
-    .AddScoped<IObjectSpaceProviderFactory, ObjectSpaceProviderFactory>()
-    .AddSingleton<IXpoDataStoreProvider>((serviceProvider) => {
-        return XPObjectSpaceProvider.GetDataStoreProvider(finalConnectionString, null, true);
-    });
-
-//TypesInfo typesInfo = new TypesInfo();
-//RegisterEntities(typesInfo);
-
-//IXpoDataStoreProvider dataStoreProvider = XPObjectSpaceProvider.GetDataStoreProvider(finalConnectionString, null);
-
-//AuthenticationStandard authentication = new AuthenticationStandard();
-//SecurityStrategyComplex security = new SecurityStrategyComplex(typeof(PermissionPolicyUser), typeof(PermissionPolicyRole), authentication, typesInfo);
-//security.RegisterXPOAdapterProviders();
-
-//SecuredObjectSpaceProvider objectSpaceProvider = new SecuredObjectSpaceProvider(security, dataStoreProvider, typesInfo, null);
-
-
-//authentication.SetLogonParameters(new AuthenticationStandardLogonParameters(userName: "User", password: string.Empty));
-//IObjectSpace loginObjectSpace = objectSpaceProvider.CreateObjectSpace();
-//security.Logon(loginObjectSpace);
-
 
 
 var host = builder.Build();
