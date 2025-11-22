@@ -33,5 +33,21 @@ public class CAPApiClient(HttpClient httpClient)
 
         return AlertInfos?.ToArray() ?? [];
     }
+
+    public async Task<AlertInfoDTO[]> GetUserSpecificAlertsAsync(CancellationToken cancellationToken = default)
+    {
+        List<AlertInfoDTO>? AlertInfos = null;
+
+        await foreach (var alert in httpClient.GetFromJsonAsAsyncEnumerable<AlertInfoDTO>("/CAP/UserSpecificAlarms", cancellationToken))
+        {
+            if (alert is not null)
+            {
+                AlertInfos ??= [];
+                AlertInfos.Add(alert);
+            }
+        }
+
+        return AlertInfos?.ToArray() ?? [];
+    }
 }
 
