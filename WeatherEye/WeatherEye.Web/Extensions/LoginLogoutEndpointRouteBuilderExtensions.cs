@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Extensions.Http.Resilience;
 
-namespace WeatherEye.Web
+namespace WeatherEye.Web.Extensions
 {
     internal static class LoginLogoutEndpointRouteBuilderExtensions
     {

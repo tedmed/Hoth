@@ -8,8 +8,9 @@ using MudBlazor.Services;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Trace;
 using System.IdentityModel.Tokens.Jwt;
-using WeatherEye.Web;
 using WeatherEye.Web.Components;
+using WeatherEye.Web.Extensions;
+using WeatherEye.Web.Handlers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -37,17 +38,9 @@ builder.Services.AddHttpContextAccessor()
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.AddHttpClient<WeatherApiClient>(client =>
-    {
-        client.BaseAddress = new("https+http://apiservice");
-    }).AddHttpMessageHandler<AuthorizationHandler>();
-;
+builder.Services.AddHttpClients();
 
-builder.Services.AddHttpClient<CAPApiClient>(client =>
-{
-    client.BaseAddress = new("https+http://apiservice");
-}).AddHttpMessageHandler<AuthorizationHandler>();
-;
+
 
 
 var oidcScheme = OpenIdConnectDefaults.AuthenticationScheme;

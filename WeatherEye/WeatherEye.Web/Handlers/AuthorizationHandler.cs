@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using System.Net.Http.Headers;
 
-namespace WeatherEye.Web
+namespace WeatherEye.Web.Handlers
 {
     public class AuthorizationHandler(IHttpContextAccessor httpContextAccessor)
     : DelegatingHandler

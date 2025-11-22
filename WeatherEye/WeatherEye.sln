@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
-VisualStudioVersion = 18.0.11205.157 d18.0
+VisualStudioVersion = 18.0.11205.157
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WeatherEye.AppHost", "WeatherEye.AppHost\WeatherEye.AppHost.csproj", "{55FEEB95-3F0D-4741-AFBB-E9123DE101C5}"
 EndProject
@@ -19,6 +19,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WeatherEye.Web", "WeatherEye.Web\WeatherEye.Web.csproj", "{78BD8BE0-7206-4DD7-BD84-85C7D467EDAC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserService", "AuthProvider\UserService.csproj", "{15D1B89D-B193-4102-92E5-B2D7BD8250AA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Preferences.DTO", "Preferences.DTO\Preferences.DTO.csproj", "{0BB24833-49FD-4D36-9377-7FA4BB4EE19C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -62,6 +64,10 @@ Global
 		{15D1B89D-B193-4102-92E5-B2D7BD8250AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{15D1B89D-B193-4102-92E5-B2D7BD8250AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{15D1B89D-B193-4102-92E5-B2D7BD8250AA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0BB24833-49FD-4D36-9377-7FA4BB4EE19C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0BB24833-49FD-4D36-9377-7FA4BB4EE19C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0BB24833-49FD-4D36-9377-7FA4BB4EE19C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0BB24833-49FD-4D36-9377-7FA4BB4EE19C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
