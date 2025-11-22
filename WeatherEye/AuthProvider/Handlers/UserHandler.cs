@@ -30,7 +30,7 @@ namespace UserService.Handlers
 
             XPQuery<UserDAO> alertDAOs = Session.DefaultSession.Query<UserDAO>();
             UserDAO? userDAO = alertDAOs.FirstOrDefault(u => u.Username == requst.Username && u.Email == requst.Email);
-            if (userDAO != null)
+            if (userDAO is not null)
             {
                 _logger.LogInformation("User found: {Username}, Oid: {Oid}", userDAO.Username, userDAO.Oid);
                 return new UserOidResponse(userDAO.Oid);
@@ -50,37 +50,23 @@ namespace UserService.Handlers
         }
 
         [WolverineHandler]
-        public SaveAlertPreferenceResponse SaveAlertPreferenceHandler(SaveAlertPreferenceRequest request)
+        public SaveUserMobAppIdResponse SaveUserMobAppIdRequestHandler(SaveUserMobAppIdRequest request)
         {
-            _logger.LogInformation("SaveAlertPreferenceHandler called with UserOid: {UserOid}, AreaDesc: {AreaDesc}", request.UserOid, request.AreaDesc);
-            XPQuery<UserDAO> userDAOs = Session.DefaultSession.Query<UserDAO>();
-            UserDAO? userDAO = userDAOs.FirstOrDefault(u => u.Oid == request.UserOid);
-            if (userDAO == null)
+            using var uow = new UnitOfWork();
+            _logger.LogInformation("SaveUserMobAppIdRequestHandler called with UserOid: {UserOid}, MobAppId: {MobAppId}", request.UserOid, request.MobAppId);
+
+            UserDAO userDAO = uow.GetObjectByKey<UserDAO>(request.UserOid);
+            if (userDAO is null)
             {
                 _logger.LogWarning("User not found with Oid: {UserOid}", request.UserOid);
-                throw new Exception("User not found");
+                return new(false);
             }
-            UserAlertPreferenceDAO newPreference = new UserAlertPreferenceDAO(Session.DefaultSession)
-            {
-                AreaDesc = request.AreaDesc,
-                User = userDAO
-            };
-            newPreference.Save();
-            _logger.LogInformation("New alert preference saved for UserOid: {UserOid}, PreferenceOid: {PreferenceOid}", request.UserOid, newPreference.Oid);
-            return new SaveAlertPreferenceResponse(newPreference.Oid);
-        }
 
-        [WolverineHandler]
-        public AlertPreferencesResponse GetAlertPreferencesHandler(AlertPreferencesRequest request)
-        {
-            _logger.LogInformation("GetAlertPreferencesHandler called with UserOid: {UserOid}", request.UserOid);
-            XPQuery<UserAlertPreferenceDAO> preferenceDAOs = Session.DefaultSession.Query<UserAlertPreferenceDAO>();
-            var areaDescs = preferenceDAOs
-                .Where(p => p.User.Oid == request.UserOid)
-                .Select(p => p.AreaDesc)
-                .ToList();
-            _logger.LogInformation("Found {Count} alert preferences for UserOid: {UserOid}", areaDescs.Count, request.UserOid);
-            return new AlertPreferencesResponse(areaDescs);
+            userDAO.MobAppDeviceId = request.MobAppId;
+            uow.CommitChanges();
+
+            _logger.LogInformation("User MobAppId updated for UserOid: {UserOid}, MobAppId: {MobAppId}", request.UserOid, request.MobAppId);
+            return new(true);
         }
     }
 }
