@@ -149,7 +149,7 @@ var postgreUser = builder.AddPostgres("postgreUser")
     .WithHostPort(64727)
     .WithPgAdmin();
 
-var userDB = postgreUser.AddDatabase("UserDB", "userdb");
+var userDB = postgreUser.AddDatabase("UserDB");
 
 builder.AddProject<Projects.UserService>("userservice")
     .WithReference(rabbitmq)
