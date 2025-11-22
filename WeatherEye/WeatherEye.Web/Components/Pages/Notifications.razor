@@ -1,5 +1,6 @@
 ﻿@page "/notifications"
 @inject CAPApiClient CapApi
+@inject UserApiClient UserApi
 
 <MudText Typo="Typo.h4" GutterBottom="true">
     🔔 Nastavení Notifikací
@@ -11,7 +12,8 @@
 @if (AvailableRegions == null)
 {
     <MudProgressCircular Color="Color.Default" Indeterminate="true" />
-} else
+}
+else
 {
     @foreach (var block in filterBlocks)
     {
@@ -43,53 +45,59 @@
                     </MudSelect>
                 </MudItem>
 
-		    </MudGrid>
+            </MudGrid>
 
-		    <MudDivider Class="my-6" />
+            <MudDivider Class="my-6" />
 
-		    <MudText Typo="Typo.h6" Class="mb-4">
-			    Způsob upozornění
-		    </MudText>
+            <MudText Typo="Typo.h6" Class="mb-4">
+                Způsob upozornění
+            </MudText>
 
-		    <MudGrid>
-			    <MudItem xs="12" sm="6">
-				    <MudCheckBox T="bool" Checked="true" Color="Color.Primary" Label="Upozornění do aplikace (Bell icon)" />
-			    </MudItem>
+            <MudGrid>
+                <MudItem xs="12" sm="6">
+                    <MudCheckBox T="bool" Checked="true" Color="Color.Primary" Label="Upozornění do aplikace (Bell icon)" />
+                </MudItem>
 
-			    <MudItem xs="12" sm="6">
-				    <MudCheckBox T="bool" Checked="false" Color="Color.Secondary" Label="Upozornění emailem" />
-			    </MudItem>
-		    </MudGrid>
+                <MudItem xs="12" sm="6">
+                    <MudCheckBox T="bool" Checked="false" Color="Color.Secondary" Label="Upozornění emailem" />
+                </MudItem>
+            </MudGrid>
 
-		    <MudDivider Class="my-6" />
+            <MudDivider Class="my-6" />
 
-		    <MudItem xs="12">
-			    <MudButton Color="Color.Error" Variant="Variant.Filled" OnClick="() => RemoveBlock(block)">Odstranit notifikaci</MudButton>
-		    </MudItem>
+            <MudItem xs="12">
+                <MudButton Color="Color.Error" Variant="Variant.Filled" OnClick="() => RemoveBlock(block)">Odstranit notifikaci</MudButton>
+            </MudItem>
 
-	    </MudPaper>
+        </MudPaper>
     }
 }
 <MudGrid>
     <MudItem xs="12">
-		<MudButton Color="Color.Primary" Variant="Variant.Filled" Class="mt-6" OnClick="AddNewBlock">
-			Přidat notifikaci
-		</MudButton>
+        <MudButton Color="Color.Primary" Variant="Variant.Filled" Class="mt-6" OnClick="AddNewBlock">
+            Přidat notifikaci
+        </MudButton>
     </MudItem>
 
     <MudItem xs="12">
-		<MudButton Color="Color.Success" Variant="Variant.Filled" Class="mt-6">
-			💾 Uložit Notifikace
-		</MudButton>
+        <MudButton Color="Color.Success" Variant="Variant.Filled" Class="mt-6" OnClick="SavePreferences">
+            💾 Uložit Notifikace
+        </MudButton>
     </MudItem>
 </MudGrid>
 
 @code {
     private string[] AvailableRegions;
+    private Preferences.DTO.AlertPreferenceDTO[] AlertPreferences;
 
     protected override async Task OnInitializedAsync()
     {
         AvailableRegions = await CapApi.GetAvailableRegionsAsync();
+        AlertPreferences = await UserApi.GetAlertPreferenceAsync();
+        foreach (var item in AlertPreferences)
+        {
+            AddNewBlock(item.AreaDesc);
+        }
     }
     // Seznam bloků, kde každý blok obsahuje výběr hodnot
     private List<FilterBlock> filterBlocks = new List<FilterBlock>();
@@ -113,9 +121,41 @@
         });
     }
 
+    private void AddNewBlock(string SelectedRegion = "", string SelectedEvent = "", string SelectedSeverity = "")
+    {
+        filterBlocks.Add(new FilterBlock
+        {
+            SelectedRegion = SelectedRegion, // default value
+            SelectedEvent = SelectedEvent,          // default value
+            SelectedSeverity = SelectedSeverity        // default value
+        });
+    }
+
+    private async void SavePreferences()
+    {
+        foreach (var item in filterBlocks)
+        {
+            try
+            {
+                await UserApi.SaveAlertPreference(item.SelectedRegion);
+
+            }
+            catch (Exception e)
+            {
+
+            }
+        }
+    }
+
+
     // Funkce pro odstranění bloku
     private void RemoveBlock(FilterBlock block)
     {
         filterBlocks.Remove(block);
+
+        var pref = AlertPreferences.Where(x => x.AreaDesc == block.SelectedRegion).FirstOrDefault();
+        if (pref is null) return;
+
+        UserApi.DeleteAlertPreferenceAsync(pref.PreferenceOid);
     }
 }
