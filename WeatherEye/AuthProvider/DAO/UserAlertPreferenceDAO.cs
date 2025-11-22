@@ -33,13 +33,28 @@ namespace UserService.DAO
             set { SetPropertyValue<string>(nameof(AreaDesc), ref fAreaDesc, value); }
         }
 
+        private bool fEmailNotification;
+
+        public bool EmailNotification
+        {
+            get { return fEmailNotification; }
+            set { SetPropertyValue<bool>(nameof(EmailNotification), ref fEmailNotification, value); }
+        }
+
+        private bool fInAppNotification;
+        public bool InAppNotification
+        {
+            get { return fInAppNotification; }
+            set { SetPropertyValue<bool>(nameof(InAppNotification), ref fInAppNotification, value); }
+        }
+
         private UserDAO fUser;
 
-        [Association]
+        [Association("UserRefAlertPreference")]
         public UserDAO User
         {
             get { return fUser; }
-            set { SetPropertyValue<UserDAO>(nameof(User), value); }
+            set { SetPropertyValue<UserDAO>(nameof(User), ref fUser, value); }
         }
 
     }

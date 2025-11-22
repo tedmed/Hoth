@@ -7,7 +7,7 @@ namespace UserService.DAO
 {
     public class UserDAO : XPLiteObject
     {
-        public Guid fOid;
+        private Guid fOid;
         [Key]
         public Guid Oid
         {
@@ -36,7 +36,7 @@ namespace UserService.DAO
             set { SetPropertyValue<string>(nameof(MobAppDeviceId), ref fMobAppDeviceId, value); }
         }
 
-        [Association]
+        [Association("UserRefAlertPreference")]
         public XPCollection<UserAlertPreferenceDAO> AlertPreferences
         {
             get { return GetCollection<UserAlertPreferenceDAO>(nameof(AlertPreferences)); }
