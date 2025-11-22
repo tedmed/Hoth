@@ -22,12 +22,15 @@ var cache = builder.AddRedis("cache")
 var postgre = builder.AddPostgres("postgre")
     .WithContainerName("postgre")
     .WithDataVolume("postgreData")
+        .WithHostPort(64725)
+
     .WithPgAdmin();
 
 
 var postgreKC = builder.AddPostgres("postgreKC")
     .WithContainerName("postgreKC")
     .WithDataVolume("postgreKCData")
+        .WithHostPort(64726)
     .WithPgAdmin();
 
 var kcDb = postgreKC.AddDatabase("postgres", "postgres");
@@ -95,7 +98,7 @@ var rabbitmq = builder.AddRabbitMQ("messaging")
 
 var apiService = builder.AddProject<Projects.WeatherEye_API>("apiservice")
     .WithHttpHealthCheck("/health")
-    .WithExternalHttpEndpoints()    
+    .WithExternalHttpEndpoints()
     .WithReference(keycloak)
     //.WithReference(realm)
     .WaitFor(keycloak)
@@ -137,6 +140,25 @@ builder.AddProject<Projects.ChmiCapAlertProvider>("chmicapalertprovider")
     .PublishAsDockerComposeService((resource, service) =>
     {
         service.Name = "chmicapalertprovider";
+        service.Restart = "unless-stopped";
+    });
+
+var postgreUser = builder.AddPostgres("postgreUser")
+    .WithContainerName("postgreUser")
+    .WithDataVolume("postgreUserData")
+    .WithHostPort(64727)
+    .WithPgAdmin();
+
+var userDB = postgreUser.AddDatabase("UserDB", "userdb");
+
+builder.AddProject<Projects.UserService>("userservice")
+    .WithReference(rabbitmq)
+    .WaitFor(rabbitmq)
+    .WithReference(userDB)
+    .WaitFor(userDB)
+    .PublishAsDockerComposeService((resource, service) =>
+    {
+        service.Name = "userservice";
         service.Restart = "unless-stopped";
     });
 

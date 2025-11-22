@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CAP\CAP.csproj" />
+    <ProjectReference Include="..\Preferences.DTO\Preferences.DTO.csproj" />
   </ItemGroup>
 
 </Project>

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.Extensions.DependencyInjection;
+using System.IdentityModel.Tokens.Jwt;
 using Wolverine;
 using Wolverine.Runtime.Handlers;
 
@@ -50,6 +51,7 @@ namespace WeatherEye.API.Controllers
             var res = await bus.InvokeAsync<AlertAreaResponse>(new AlertAreaRequest());
             return Ok(res.regions);
         }
+
 
     }
 }
