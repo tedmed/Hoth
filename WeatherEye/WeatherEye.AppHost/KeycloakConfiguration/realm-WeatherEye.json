@@ -903,15 +903,15 @@
       "clientAuthenticatorType": "client-secret",
       "redirectUris": [
         "https://localhost:54777/signin-oidc",
-        "http://localhost:8080/signin-oidc",
-        "https://localhost:8080/signin-oidc",
+        "http://localhost:7121/signin-oidc",
+        "https://localhost:7121/signin-oidc",
         "https://host.docker.internal:7121/*"
       ],
       "webOrigins": [
         "https://host.docker.internal:7121/*",
         "https://localhost:7121",
-        "http://localhost:8080/",
-        "https://localhost:8080/"
+        "http://localhost:7121/",
+        "https://localhost:7121/"
       ],
       "notBefore": 0,
       "bearerOnly": false,

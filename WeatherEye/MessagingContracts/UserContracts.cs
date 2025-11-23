@@ -1,4 +1,5 @@
-﻿using Preferences.DTO;
+﻿using CAP.DTOs;
+using Preferences.DTO;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -19,4 +20,7 @@ namespace MessagingContracts
 
     public record SaveUserMobAppIdRequest(Guid UserOid,string MobAppId);
     public record SaveUserMobAppIdResponse(bool ok);
+
+    public record InterestedUserEmailsRequest(AlertInfoDTO AlertInfo);
+    public record InterestedUserEmailsResponse(IList<string> Emails);
 }

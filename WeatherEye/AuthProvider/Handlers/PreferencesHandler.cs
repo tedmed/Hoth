@@ -80,6 +80,8 @@ namespace UserService.Handlers
             UserAlertPreferenceDAO newPreference = new UserAlertPreferenceDAO(uow)
             {
                 AreaDesc = request.AreaDesc,
+                EmailNotification = request.EmailNotification,
+                InAppNotification = request.InAppNotification,
                 User = userDAO
             };
 

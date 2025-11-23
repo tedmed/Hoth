@@ -45,24 +45,24 @@ else
                     </MudSelect>
                 </MudItem>
 
+
+
+                <MudDivider Class="my-6" />
+
+                <MudText Typo="Typo.h6" Class="mb-4">
+                    Způsob upozornění
+                </MudText>
+
+                <MudGrid>
+                    <MudItem xs="12" sm="6">
+                        <MudCheckBox T="bool" Checked="true" Color="Color.Primary" @bind-Value="block.MobApp" Label="Upozornění do aplikace (Bell icon)" />
+                    </MudItem>
+
+                    <MudItem xs="12" sm="6">
+                        <MudCheckBox T="bool" Checked="false" Color="Color.Secondary" @bind-Value="block.Email" Label="Upozornění emailem" />
+                    </MudItem>
+                </MudGrid>
             </MudGrid>
-
-            <MudDivider Class="my-6" />
-
-            <MudText Typo="Typo.h6" Class="mb-4">
-                Způsob upozornění
-            </MudText>
-
-            <MudGrid>
-                <MudItem xs="12" sm="6">
-                    <MudCheckBox T="bool" Checked="true" Color="Color.Primary" Label="Upozornění do aplikace (Bell icon)" />
-                </MudItem>
-
-                <MudItem xs="12" sm="6">
-                    <MudCheckBox T="bool" Checked="false" Color="Color.Secondary" Label="Upozornění emailem" />
-                </MudItem>
-            </MudGrid>
-
             <MudDivider Class="my-6" />
 
             <MudItem xs="12">
@@ -96,7 +96,7 @@ else
         AlertPreferences = await UserApi.GetAlertPreferenceAsync();
         foreach (var item in AlertPreferences)
         {
-            AddNewBlock(item.AreaDesc);
+            AddNewBlock(item.AreaDesc,"","",item.EmailNotification,item.InAppNotification);
         }
     }
     // Seznam bloků, kde každý blok obsahuje výběr hodnot
@@ -108,6 +108,8 @@ else
         public string SelectedRegion { get; set; }
         public string SelectedEvent { get; set; }
         public string SelectedSeverity { get; set; }
+        public bool Email { get; set; }
+        public bool MobApp { get; set; }
     }
 
     // Funkce pro přidání nového bloku
@@ -117,17 +119,21 @@ else
         {
             SelectedRegion = "", // default value
             SelectedEvent = "",          // default value
-            SelectedSeverity = ""        // default value
+            SelectedSeverity = "",        // default value
+            Email = false,
+            MobApp = false
         });
     }
 
-    private void AddNewBlock(string SelectedRegion = "", string SelectedEvent = "", string SelectedSeverity = "")
+    private void AddNewBlock(string SelectedRegion = "", string SelectedEvent = "", string SelectedSeverity = "",bool Email = false,bool MobApp = false)
     {
         filterBlocks.Add(new FilterBlock
         {
             SelectedRegion = SelectedRegion, // default value
             SelectedEvent = SelectedEvent,          // default value
-            SelectedSeverity = SelectedSeverity        // default value
+            SelectedSeverity = SelectedSeverity,        // default value
+            MobApp = MobApp,
+            Email = Email
         });
     }
 
@@ -137,7 +143,7 @@ else
         {
             try
             {
-                await UserApi.SaveAlertPreference(item.SelectedRegion);
+                await UserApi.SaveAlertPreference(item.SelectedRegion,item.Email,item.MobApp);
 
             }
             catch (Exception e)
@@ -153,7 +159,11 @@ else
     {
         filterBlocks.Remove(block);
 
-        var pref = AlertPreferences.Where(x => x.AreaDesc == block.SelectedRegion).FirstOrDefault();
+        var pref = AlertPreferences
+            .Where(x => x.AreaDesc == block.SelectedRegion &&
+            x.EmailNotification == block.Email &&
+            x.InAppNotification == block.MobApp
+        ).FirstOrDefault();
         if (pref is null) return;
 
         UserApi.DeleteAlertPreferenceAsync(pref.PreferenceOid);

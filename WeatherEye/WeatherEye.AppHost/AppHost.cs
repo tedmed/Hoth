@@ -165,4 +165,16 @@ builder.AddProject<Projects.UserService>("userservice")
 
 
 
+builder.AddProject<Projects.EmailNotificationService>("emailnotificationservice")
+    .WithReference(rabbitmq)
+    .WaitFor(rabbitmq)
+    .PublishAsDockerComposeService((resource, service) =>
+    {
+        service.Name = "emailnotificationservice";
+        service.Restart = "unless-stopped";
+    });
+
+
+
+
 builder.Build().Run();
