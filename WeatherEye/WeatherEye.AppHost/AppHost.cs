@@ -22,7 +22,7 @@ var cache = builder.AddRedis("cache")
 var postgre = builder.AddPostgres("postgre")
     .WithContainerName("postgre")
     .WithDataVolume("postgreData")
-        //.WithHostPort(64725)
+        .WithHostPort(64725)
 
     .WithPgAdmin();
 
@@ -30,7 +30,7 @@ var postgre = builder.AddPostgres("postgre")
 var postgreKC = builder.AddPostgres("postgreKC")
     .WithContainerName("postgreKC")
     .WithDataVolume("postgreKCData")
-        //.WithHostPort(64726)
+        .WithHostPort(64726)
     .WithPgAdmin();
 
 var kcDb = postgreKC.AddDatabase("postgres", "postgres");
@@ -146,7 +146,7 @@ builder.AddProject<Projects.ChmiCapAlertProvider>("chmicapalertprovider")
 var postgreUser = builder.AddPostgres("postgreUser")
     .WithContainerName("postgreUser")
     .WithDataVolume("postgreUserData")
-    //.WithHostPort(64727)
+    .WithHostPort(64727)
     .WithPgAdmin();
 
 var userDB = postgreUser.AddDatabase("UserDB");
