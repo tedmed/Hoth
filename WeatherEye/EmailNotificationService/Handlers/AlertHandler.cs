@@ -27,7 +27,13 @@ namespace EmailNotificationService.Handlers
             var emailsResponse = await bus.InvokeAsync<InterestedUserEmailsResponse>(new InterestedUserEmailsRequest(alert.AlertInfo));
             foreach (var email in emailsResponse.Emails)
             {
-                string body = alert.AlertInfo.Description + Environment.NewLine + Environment.NewLine + alert.AlertInfo.Instruction;
+                string body = alert.AlertInfo.Onset + " - " + alert.AlertInfo.Expires
+                    + Environment.NewLine
+                    + Environment.NewLine
+                    + alert.AlertInfo.Description
+                    + Environment.NewLine
+                    + Environment.NewLine
+                    + alert.AlertInfo.Instruction;
                 _emailSender.SendEmail(email, $"{alert.AlertInfo.Event} - {alert.AlertInfo.AreaDesc}", body);
             }
 

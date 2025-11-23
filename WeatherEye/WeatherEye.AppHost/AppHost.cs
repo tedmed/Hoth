@@ -22,7 +22,7 @@ var cache = builder.AddRedis("cache")
 var postgre = builder.AddPostgres("postgre")
     .WithContainerName("postgre")
     .WithDataVolume("postgreData")
-        .WithHostPort(64725)
+        //.WithHostPort(64725)
 
     .WithPgAdmin();
 
@@ -30,7 +30,7 @@ var postgre = builder.AddPostgres("postgre")
 var postgreKC = builder.AddPostgres("postgreKC")
     .WithContainerName("postgreKC")
     .WithDataVolume("postgreKCData")
-        .WithHostPort(64726)
+        //.WithHostPort(64726)
     .WithPgAdmin();
 
 var kcDb = postgreKC.AddDatabase("postgres", "postgres");
@@ -53,7 +53,7 @@ var keycloak = builder.AddKeycloak("keycloak", 8081)
 
     .WithEnvironment("KC_PROXY_HEADERS", "xforwarded")
     .WithEnvironment("KC_HOSTNAME_STRICT", "false")
-    // DB nastavení
+    // DB nastavenÃ­
     .WithEnvironment("KC_DB", "postgres")
     .WithEnvironment("KC_DB_URL", keycloakDbUrl)
     .WithEnvironment("KC_DB_USERNAME", postgreKC.Resource.UserNameReference)
@@ -63,7 +63,7 @@ var keycloak = builder.AddKeycloak("keycloak", 8081)
 if (builder.Environment.IsDevelopment() == false)
 {
     keycloak
-    // Reverse proxy nastavení
+    // Reverse proxy nastavenÃ­
     //.WithEnvironment("KC_PROXY", "edge")
     //.WithEnvironment("KC_PROXY_PROTOCOL_ENABLED", "true")
 
@@ -71,7 +71,7 @@ if (builder.Environment.IsDevelopment() == false)
     .WithEnvironment("KC_HOSTNAME_BACKCHANNEL_DYNAMIC", "true")
 
     .WithEnvironment("KC_HOSTNAME", "https://auth.weathereye.eu/");
-    // Nejzásadnìjší — nastaví venkovní URL HOST NAME
+    // NejzÃ¡sadnÄ›jÅ¡Ã­ â€” nastavÃ­ venkovnÃ­ URL HOST NAME
     //.WithEnvironment("KC_HOSTNAME", "weathereye.eu")
     //.WithEnvironment("KC_HOSTNAME_PORT","443")
 
@@ -146,7 +146,7 @@ builder.AddProject<Projects.ChmiCapAlertProvider>("chmicapalertprovider")
 var postgreUser = builder.AddPostgres("postgreUser")
     .WithContainerName("postgreUser")
     .WithDataVolume("postgreUserData")
-    .WithHostPort(64727)
+    //.WithHostPort(64727)
     .WithPgAdmin();
 
 var userDB = postgreUser.AddDatabase("UserDB");

@@ -39,7 +39,7 @@ namespace ChmiCapAlertProvider.Handlers
         public AlertResponse HandleAlertRequest(MessagingContracts.AlertRequest request)
         {
             _logger.LogInformation("Handling AlertRequest");
-            UnitOfWork uow = new();
+            using UnitOfWork uow = new();
 
             var Alert = uow.Query<AlertDAO>().OrderByDescending(x => x.Sent).FirstOrDefault();
             if(Alert is null)
@@ -63,9 +63,9 @@ namespace ChmiCapAlertProvider.Handlers
         public AlertAreaResponse HandleAreaRequest(MessagingContracts.AlertAreaRequest request)
         {
             _logger.LogInformation("Handling AlertAreaRequest");
-            XPQuery<AreaDAO> areas = Session.DefaultSession.Query<AreaDAO>();
+            using UnitOfWork uow = new();
            
-            return new AlertAreaResponse(areas.Select(x => x.AreaDesc).ToList());
+            return new AlertAreaResponse(uow.Query<AreaDAO>().Select(x => x.AreaDesc).ToList());
         }
     }
 }

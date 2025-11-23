@@ -29,8 +29,9 @@ namespace UserService.Handlers
         public AlertPreferencesResponse GetAlertPreferencesHandler(AlertPreferencesRequest request)
         {
             _logger.LogInformation("GetAlertPreferencesHandler called with UserOid: {UserOid}", request.UserOid);
-            XPQuery<UserAlertPreferenceDAO> preferenceDAOs = Session.DefaultSession.Query<UserAlertPreferenceDAO>();
-            var areaDescs = preferenceDAOs
+            using UnitOfWork uow = new UnitOfWork();
+            
+            var areaDescs = uow.Query<UserAlertPreferenceDAO>()
                 .Where(p => p.User.Oid == request.UserOid)
                 .ToList();
 

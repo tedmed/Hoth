@@ -28,8 +28,8 @@ namespace UserService.Handlers
         {
             _logger.LogInformation("UserOidRequestHandler called with Username: {Username}, email: {email}", requst.Username, requst.Email);
 
-            XPQuery<UserDAO> alertDAOs = Session.DefaultSession.Query<UserDAO>();
-            UserDAO? userDAO = alertDAOs.FirstOrDefault(u => u.Username == requst.Username && u.Email == requst.Email);
+            using UnitOfWork uow = new UnitOfWork();
+            UserDAO? userDAO = uow.Query<UserDAO>().FirstOrDefault(u => u.Username == requst.Username && u.Email == requst.Email);
             if (userDAO is not null)
             {
                 _logger.LogInformation("User found: {Username}, Oid: {Oid}", userDAO.Username, userDAO.Oid);
@@ -38,7 +38,7 @@ namespace UserService.Handlers
             }
             else
             {
-                UserDAO newUserDAO = new UserDAO(Session.DefaultSession)
+                UserDAO newUserDAO = new UserDAO(uow)
                 {
                     Username = requst.Username,
                     Email = requst.Email
@@ -74,9 +74,11 @@ namespace UserService.Handlers
         {
             _logger.LogInformation("InterestedUserEmailsRequestHandler called for AlertInfo: Event - {event}, AreaDesc - {areaDesc}", request.AlertInfo.Event, request.AlertInfo.AreaDesc);
 
-            XPQuery<UserAlertPreferenceDAO> preferenceDAOs = Session.DefaultSession.Query<UserAlertPreferenceDAO>();
+            using UnitOfWork uow = new UnitOfWork();
+            
 
-            var userEmails = preferenceDAOs
+
+            var userEmails = uow.Query<UserAlertPreferenceDAO>()
                 .Where(p =>
                     p.AreaDesc == request.AlertInfo.AreaDesc &&
                     
