@@ -1,13 +1,14 @@
-﻿using ChmiCapAlertProvider.DAO;
+﻿using CAP.DTOs;
+using ChmiCapAlertProvider.DAO;
+using DevExpress.Xpo;
+using MessagingContracts;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using RestSharp;
 using System.Xml.Serialization;
 using Wolverine;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using DevExpress.Xpo;
-using CAP.DTOs;
 
 
 public class ChmiCapService : BackgroundService
@@ -82,7 +83,7 @@ public class ChmiCapService : BackgroundService
                     var dtos = dao.TransformToDTOs();
 
                     foreach (var dto in dtos)
-                        await bus.PublishAsync(dto);
+                        await bus.PublishAsync(new NewAlertCreated(dto));
 
                     uow.CommitChanges();
                 }
