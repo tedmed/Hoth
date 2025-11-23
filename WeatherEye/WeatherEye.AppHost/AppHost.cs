@@ -53,7 +53,7 @@ var keycloak = builder.AddKeycloak("keycloak", 8081)
 
     .WithEnvironment("KC_PROXY_HEADERS", "xforwarded")
     .WithEnvironment("KC_HOSTNAME_STRICT", "false")
-    // DB nastavení
+    // DB nastavenÃ­
     .WithEnvironment("KC_DB", "postgres")
     .WithEnvironment("KC_DB_URL", keycloakDbUrl)
     .WithEnvironment("KC_DB_USERNAME", postgreKC.Resource.UserNameReference)
@@ -63,7 +63,7 @@ var keycloak = builder.AddKeycloak("keycloak", 8081)
 if (builder.Environment.IsDevelopment() == false)
 {
     keycloak
-    // Reverse proxy nastavení
+    // Reverse proxy nastavenÃ­
     //.WithEnvironment("KC_PROXY", "edge")
     //.WithEnvironment("KC_PROXY_PROTOCOL_ENABLED", "true")
 
@@ -71,7 +71,7 @@ if (builder.Environment.IsDevelopment() == false)
     .WithEnvironment("KC_HOSTNAME_BACKCHANNEL_DYNAMIC", "true")
 
     .WithEnvironment("KC_HOSTNAME", "https://auth.weathereye.eu/");
-    // Nejzásadnìjší — nastaví venkovní URL HOST NAME
+    // NejzÃ¡sadnÄ›jÅ¡Ã­ â€” nastavÃ­ venkovnÃ­ URL HOST NAME
     //.WithEnvironment("KC_HOSTNAME", "weathereye.eu")
     //.WithEnvironment("KC_HOSTNAME_PORT","443")
 
