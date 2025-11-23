@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using DevExpress.Xpo;
+using CAP.DTOs;
 
 
 public class ChmiCapService : BackgroundService
@@ -28,7 +29,9 @@ public class ChmiCapService : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        while ((!stoppingToken.IsCancellationRequested))
+        PeriodicTimer periodicTimer = new(TimeSpan.FromSeconds(30));
+
+        while (await periodicTimer.WaitForNextTickAsync(stoppingToken))
         {
             _logger.LogInformation("ChmiCap Service is running at: {time}", DateTimeOffset.Now);
 
@@ -50,33 +53,37 @@ public class ChmiCapService : BackgroundService
                 if (alert is null) continue;
                 using var uow = new UnitOfWork();
 
+                var existingAlert =  uow.Query<AlertDAO>().Where(x => x.Identifier == alert.Identifier).FirstOrDefault();
+
+                if (existingAlert is null) {
+                    AlertDAO alertDto = new(uow)
+                    {
+                        Identifier = alert.Identifier,
+                        Sent = DateTime.SpecifyKind(alert.Sent, DateTimeKind.Utc),
+                    };
+                    existingAlert = alertDto;
+
+                }
+                else
+                {
+                    _logger.LogInformation("Alert with Identifier {identifier} already exists. Skipping.", alert.Identifier);
+                    continue;
+                }
+
+
                 foreach (var info in alert.Info)
                 {
-                    if (info.Expires != DateTime.MinValue)
-                    {
-                        if (uow.Query<AlertDAO>().Any(x => x.SenderName == info.SenderName
-                        && x.Event == info.Event
-                        && x.Language == info.Language
-                        && x.Onset == DateTime.SpecifyKind(info.Onset, DateTimeKind.Utc)
-                        && x.Expires == DateTime.SpecifyKind(info.Expires, DateTimeKind.Utc)))
-                        {
-                            continue;
-                        }
-                    }
-                    else
-                    {
-                        if (uow.Query<AlertDAO>().Any(x => x.SenderName == info.SenderName
-                        && x.Event == info.Event
-                        && x.Language == info.Language
-                        && x.Onset == DateTime.SpecifyKind(info.Onset, DateTimeKind.Utc)))
-                        {
-                            continue;
-                        }
-                    }
-                    AlertDAO dto = new AlertDAO(uow);
-                    dto.SetProperties(info, alert);
+                    AlertInfoDAO dao = new AlertInfoDAO(uow);
+                    dao.SetProperties(info, alert);
+                    existingAlert.AlertInfos.Add(dao);
+
                     _logger.LogInformation("Publishing AlertInfo");
-                    await bus.SendAsync(info);
+
+                    var dtos = dao.TransformToDTOs();
+
+                    foreach (var dto in dtos)
+                        await bus.PublishAsync(dto);
+
                     uow.CommitChanges();
                 }
 

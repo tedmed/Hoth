@@ -43,9 +43,9 @@ namespace ChmiCapAlertProvider.DAO
         }
 
         [Association("AlertRefArea")]
-        public XPCollection<AlertDAO> Alerts
+        public XPCollection<AlertInfoDAO> Alerts
         {
-            get { return GetCollection<AlertDAO>(nameof(Alerts)); }
+            get { return GetCollection<AlertInfoDAO>(nameof(Alerts)); }
         }
 
         public AreaDAO(Session session) : base(session) { }

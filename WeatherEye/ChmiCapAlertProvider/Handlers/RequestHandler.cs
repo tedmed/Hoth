@@ -39,40 +39,24 @@ namespace ChmiCapAlertProvider.Handlers
         public AlertResponse HandleAlertRequest(MessagingContracts.AlertRequest request)
         {
             _logger.LogInformation("Handling AlertRequest");
+            UnitOfWork uow = new();
 
-            XPQuery<AlertDAO> alertDAOs = Session.DefaultSession.Query<AlertDAO>();
+            var Alert = uow.Query<AlertDAO>().OrderByDescending(x => x.Sent).FirstOrDefault();
+            if(Alert is null)
+            {
+                return new(Array.Empty<AlertInfoDTO>());
+            }
 
-            var relevantAlerts = alertDAOs.ToList();
+            var alertDAOs = Alert.AlertInfos;
 
-            List<AlertInfoDTO> alertInfosDTOs = new();
-
+            List<AlertInfoDTO> alertInfoDTOs = new();
 
             foreach (var info in alertDAOs)
             {
-                foreach (var area in info.Areas)
-                {
-                    _logger.LogInformation("Found AlertInfo: Event - {event}, Headline - {headline}, Area - {areaDesc}, Expires - {expires}", info.Event, info.Headline, area.AreaDesc, info.Expires);
-                    var dto = new AlertInfoDTO()
-                    {
-                        SenderName = info.SenderName,
-                        Event = info.Event,
-                        Urgency = Enum.GetName(typeof(AlertInfoUrgency), info.Urgency) ?? string.Empty,
-                        Severity = Enum.GetName(typeof(AlertInfoSeverity), info.Severity) ?? string.Empty,
-                        Certainty = Enum.GetName(typeof(AlertInfoCertainty), info.Certainty) ?? string.Empty,
-                        Language = info.Language,
-                        Onset = info.Onset ?? DateTime.MinValue,
-                        Expires = info.Expires ?? DateTime.MinValue,
-                        Headline = info.Headline,
-                        Description = info.Description,
-                        Instruction = info.Instruction,
-                        AreaDesc = area.AreaDesc
-                    };
-                    alertInfosDTOs.Add(dto);
-
-                }
+                alertInfoDTOs.AddRange(info.TransformToDTOs());                
             }
-            _logger.LogInformation($"Returning {alertInfosDTOs.Count} alerts");
-            return new AlertResponse(alertInfosDTOs);
+            _logger.LogInformation($"Returning {alertInfoDTOs.Count} alerts");
+            return new AlertResponse(alertInfoDTOs);
         }
 
         [WolverineHandler]
