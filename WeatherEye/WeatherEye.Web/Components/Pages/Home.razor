@@ -2,58 +2,103 @@
 
 <PageTitle>Home</PageTitle>
 
-<MudText Typo="Typo.h3" GutterBottom="true">Hello, world!</MudText>
-<MudText Class="mb-8">Welcome to your new app, powered by MudBlazor and the .NET 9 Template!</MudText>
+<MudContainer MaxWidth="MaxWidth.Medium" Class="mt-5">
 
-<MudAlert Severity="Severity.Normal" ContentAlignment="HorizontalAlignment.Start">
-    You can find documentation and examples on our website here:
-    <MudLink Href="https://mudblazor.com" Target="_blank" Typo="Typo.body2" Color="Color.Primary">
-        <b>www.mudblazor.com</b>
-    </MudLink>
-</MudAlert>
+    <!-- Hlavní nadpis -->
+    <MudText Typo="Typo.h3" Align="Align.Center" Color="Color.Primary" GutterBottom="true">
+        🌦️ WeatherEye – systém výstrah
+    </MudText>
+    <MudText Typo="Typo.subtitle1" Align="Align.Center" Class="mb-4">
+        Informační systém pro sledování nebezpečného počasí. Sledujte aktuální varování a nastavte si upozornění pro vámi vybraný region.
+    </MudText>
 
-<br />
-<MudText Typo="Typo.h5" GutterBottom="true">Interactivity in this Template</MudText>
-<br />
-<MudText Typo="Typo.body2">
-    When you opt for the "Global" Interactivity Location, <br />
-    the render modes are defined in App.razor and consequently apply to all child components.<br />
-    In this case, providers are globally set in the MainLayout.<br />
-    <br />
-    On the other hand, if you choose the "Per page/component" Interactivity Location,<br />
-    it is necessary to include the <br />
-    <br />
-    &lt;MudPopoverProvider /&gt; <br />
-    &lt;MudDialogProvider /&gt; <br />
-    &lt;MudSnackbarProvider /&gt; <br />
-    <br />
-    components on every interactive page.<br />
-    <br />
-    If a render mode is not specified for a page, it defaults to Server-Side Rendering (SSR),<br />
-    similar to this page. While MudBlazor allows pages to be rendered in SSR,<br />
-    please note that interactive features, such as buttons and dropdown menus, will not be functional.
-</MudText>
+    <!-- Call-to-action tlačítko -->
+    <Microsoft.AspNetCore.Components.Authorization.AuthorizeView>
+        <NotAuthorized>
+            <MudStack Row="true" Justify="Justify.Center" Class="mb-5">
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" Href="/register">
+                    Registrace
+                </MudButton>
+            </MudStack>
+        </NotAuthorized>
+    </Microsoft.AspNetCore.Components.Authorization.AuthorizeView>
 
-<br />
-<MudText Typo="Typo.h5" GutterBottom="true">What's New in Blazor with the Release of .NET 9</MudText>
-<br />
+    <!-- Sekce s kartami -->
+    <MudStack Row="true" Spacing="3" Class="mb-5" Justify="Justify.Center">
+        <MudCard Class="mx-2" Elevation="3">
+            <MudCardHeader>
+                <MudText Typo="Typo.h6">Notifikace</MudText>
+            </MudCardHeader>
+            <MudCardContent>
+                <MudText Typo="Typo.body2">
+                    Upozornění je možné individuálně nastavit podle regionu, typu výstrahy a závažnosti.
+                    Upozornění si můžete nechat zasílat emailem nebo si stáhnout naši mobilní aplikaci.
+                </MudText>
+            </MudCardContent>
+        </MudCard>
 
-<MudText Typo="Typo.h6" GutterBottom="true">Prerendering</MudText>
-<MudText Typo="Typo.body2" GutterBottom="true">
-    If you're exploring the features of .NET 9 Blazor,<br /> you might be pleasantly surprised to learn that each page is prerendered on the server,<br /> regardless of the selected render mode.<br /><br />
-    This means that you'll need to inject all necessary services on the server,<br /> even when opting for the wasm (WebAssembly) render mode.<br /><br />
-    This prerendering functionality is crucial to ensuring that WebAssembly mode feels fast and responsive,<br /> especially when it comes to initial page load times.<br /><br />
-    For more information on how to detect prerendering and leverage the RenderContext, you can refer to the following link:
-    <MudLink Href="https://github.com/dotnet/aspnetcore/issues/51468#issuecomment-1783568121" Target="_blank" Typo="Typo.body2" Color="Color.Primary">
-        More details
-    </MudLink>
-</MudText>
+        <MudCard Class="mx-2" Elevation="3">
+            <MudCardHeader>
+                <MudText Typo="Typo.h6">Přehled výstrah</MudText>
+            </MudCardHeader>
+            <MudCardContent>
+                <MudText Typo="Typo.body2">
+                    Aktuální i historické výstrahy podle typu nebezpečí, regionu, závažnosti a dalších parametrů.
+                </MudText>
+            </MudCardContent>
+        </MudCard>
+    </MudStack>
 
-<br />
-<MudText Typo="Typo.h6" GutterBottom="true">InteractiveAuto</MudText>
-<MudText Typo="Typo.body2">
-    A discussion on how to achieve this can be found here:
-    <MudLink Href="https://github.com/dotnet/aspnetcore/issues/51468#issue-1950424116" Target="_blank" Typo="Typo.body2" Color="Color.Primary">
-        More details
-    </MudLink>
-</MudText>
+    <!-- Tabulka s varováními -->
+    <MudText Typo="Typo.h5" GutterBottom="true">Aktuální varování</MudText>
+
+    <MudTable Items="Warnings" Dense="true" Hover="true" Striped="true" Bordered="true">
+        <HeaderContent>
+            <MudTh>Datum</MudTh>
+            <MudTh>Region</MudTh>
+            <MudTh>Nebezpečí</MudTh>
+            <MudTh>Závažnost</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd>@context.Date.ToString("dd.MM.yyyy")</MudTd>
+            <MudTd>@context.Region</MudTd>
+            <MudTd>@context.Event</MudTd>
+            <MudTd>
+                @if (context.Severity == "High")
+                {
+                    <MudChip T="string" Color="Color.Error" Variant="Variant.Filled">Vysoká</MudChip>
+                }
+                else if (context.Severity == "Moderate")
+                {
+                    <MudChip T="string" Color="Color.Warning" Variant="Variant.Filled">Střední</MudChip>
+                }
+                else
+                {
+                    <MudChip T="string" Color="Color.Info" Variant="Variant.Filled">Nízká</MudChip>
+                }
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+
+</MudContainer>
+@code {
+    // Model jedné výstrahy
+    public class Warning
+    {
+        public DateTime Date { get; set; }
+        public string Region { get; set; }
+        public string Event { get; set; }
+        public string Severity { get; set; }
+    }
+
+    // Kolekce výstrah
+    private List<Warning> Warnings = new()
+    {
+        new Warning { Date = DateTime.Now, Region = "Pardubický kraj", Event = "Silný vítr", Severity = "Moderate" },
+        new Warning { Date = DateTime.Now.AddDays(-1), Region = "Středočeský kraj", Event = "Námraza", Severity = "High" },
+        new Warning { Date = DateTime.Now.AddDays(-2), Region = "Jihočeský kraj", Event = "Silný déšť", Severity = "Moderate" },
+        new Warning { Date = DateTime.Now.AddDays(-4), Region = "Moravský kraj", Event = "Silná ledovka", Severity = "" },
+        new Warning { Date = DateTime.Now.AddDays(-7), Region = "Královéhradecký kraj", Event = "Bláto", Severity = "Moderate" }
+
+    };
+}
