@@ -1,10 +1,11 @@
 ﻿@page "/"
+@using CAP.DTOs
+@inject CAPApiClient CapApi
 
 <PageTitle>Home</PageTitle>
 
 <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-5">
 
-    <!-- Hlavní nadpis -->
     <MudText Typo="Typo.h3" Align="Align.Center" Color="Color.Primary" GutterBottom="true">
         🌦️ WeatherEye – systém výstrah
     </MudText>
@@ -12,22 +13,20 @@
         Informační systém pro sledování nebezpečného počasí. Sledujte aktuální varování a nastavte si upozornění pro vámi vybraný region.
     </MudText>
 
-    <!-- Call-to-action tlačítko -->
     <Microsoft.AspNetCore.Components.Authorization.AuthorizeView>
         <NotAuthorized>
             <MudStack Row="true" Justify="Justify.Center" Class="mb-5">
-                <MudButton Variant="Variant.Filled" Color="Color.Primary" Href="/register">
+                <MudButton Color="Color.Primary" Variant="Variant.Filled" Href="authentication/login">
                     Registrace
                 </MudButton>
             </MudStack>
         </NotAuthorized>
     </Microsoft.AspNetCore.Components.Authorization.AuthorizeView>
 
-    <!-- Sekce s kartami -->
     <MudStack Row="true" Spacing="3" Class="mb-5" Justify="Justify.Center">
         <MudCard Class="mx-2" Elevation="3">
             <MudCardHeader>
-                <MudText Typo="Typo.h6">Notifikace</MudText>
+                <MudText Typo="Typo.h6">Notifikace (pouze po registraci)</MudText>
             </MudCardHeader>
             <MudCardContent>
                 <MudText Typo="Typo.body2">
@@ -49,10 +48,9 @@
         </MudCard>
     </MudStack>
 
-    <!-- Tabulka s varováními -->
     <MudText Typo="Typo.h5" GutterBottom="true">Aktuální varování</MudText>
 
-    <MudTable Items="Warnings" Dense="true" Hover="true" Striped="true" Bordered="true">
+    <MudTable Items="Warnings" Dense="true" Hover="true" Striped="true" Bordered="true" Loading="@_loading">
         <HeaderContent>
             <MudTh>Datum</MudTh>
             <MudTh>Region</MudTh>
@@ -60,45 +58,86 @@
             <MudTh>Závažnost</MudTh>
         </HeaderContent>
         <RowTemplate>
-            <MudTd>@context.Date.ToString("dd.MM.yyyy")</MudTd>
-            <MudTd>@context.Region</MudTd>
+            <MudTd>@context.Onset.ToString("dd.MM.yyyy HH:mm")</MudTd>
+
+            <MudTd>@context.AreaDesc</MudTd>
             <MudTd>@context.Event</MudTd>
+
             <MudTd>
-                @if (context.Severity == "High")
-                {
-                    <MudChip T="string" Color="Color.Error" Variant="Variant.Filled">Vysoká</MudChip>
-                }
-                else if (context.Severity == "Moderate")
-                {
-                    <MudChip T="string" Color="Color.Warning" Variant="Variant.Filled">Střední</MudChip>
-                }
-                else
-                {
-                    <MudChip T="string" Color="Color.Info" Variant="Variant.Filled">Nízká</MudChip>
-                }
+                <MudChip T="string"
+                         Color="@GetSeverityColor(context.Severity)"
+                         Size="Size.Small"
+                         Variant="Variant.Filled">
+                    @context.Severity
+                </MudChip>
             </MudTd>
         </RowTemplate>
+        <NoRecordsContent>
+            <MudText>Nenalezena žádná aktuální varování.</MudText>
+        </NoRecordsContent>
+        <LoadingContent>
+            <MudText>Načítám data...</MudText>
+        </LoadingContent>
     </MudTable>
 
 </MudContainer>
+
 @code {
-    // Model jedné výstrahy
-    public class Warning
+    private IEnumerable<AlertInfoDTO>? Warnings;
+    private bool _loading = true;
+
+    protected override async Task OnInitializedAsync()
     {
-        public DateTime Date { get; set; }
-        public string Region { get; set; }
-        public string Event { get; set; }
-        public string Severity { get; set; }
+        try
+        {
+            _loading = true;
+            var alerts = await CapApi.GetAlertsAsync();
+
+            if (alerts != null)
+            {
+                // Definujeme seznam závažností, které chceme na úvodní stránce
+                var importantSeverities = new[] { "Extreme", "Severe", "Moderate" };
+                // Pokud bys chtěl i střední, připiš do závorky: , "Moderate"
+
+                Warnings = alerts
+                    // 1. KROK: Vyfiltrujeme jen ty, co jsou v našem seznamu "důležitých"
+                    .Where(x => importantSeverities.Contains(x.Severity, StringComparer.OrdinalIgnoreCase))
+                    // 2. KROK: Seřadíme podle data začátku (nejnovější nahoře)
+                    .OrderByDescending(x => x.Onset)
+                    // 3. KROK: Vezmeme jen 5 nejnovějších
+                    .Take(5);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Chyba při načítání dat: {ex.Message}");
+        }
+        finally
+        {
+            _loading = false;
+        }
     }
 
-    // Kolekce výstrah
-    private List<Warning> Warnings = new()
+    // NOVÁ METODA: Řeší logiku barev mimo HTML
+    private Color GetSeverityColor(string? severity)
     {
-        new Warning { Date = DateTime.Now, Region = "Pardubický kraj", Event = "Silný vítr", Severity = "Moderate" },
-        new Warning { Date = DateTime.Now.AddDays(-1), Region = "Středočeský kraj", Event = "Námraza", Severity = "High" },
-        new Warning { Date = DateTime.Now.AddDays(-2), Region = "Jihočeský kraj", Event = "Silný déšť", Severity = "Moderate" },
-        new Warning { Date = DateTime.Now.AddDays(-4), Region = "Moravský kraj", Event = "Silná ledovka", Severity = "" },
-        new Warning { Date = DateTime.Now.AddDays(-7), Region = "Královéhradecký kraj", Event = "Bláto", Severity = "Moderate" }
+        if (string.IsNullOrEmpty(severity))
+            return Color.Default;
 
-    };
+        // Porovnání bez ohledu na velká/malá písmena
+        if (string.Equals(severity, "Extreme", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(severity, "Severe", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(severity, "High", StringComparison.OrdinalIgnoreCase))
+        {
+            return Color.Error;
+        }
+
+        if (string.Equals(severity, "Moderate", StringComparison.OrdinalIgnoreCase))
+        {
+            return Color.Warning;
+        }
+
+        // Pro Minor, Unknown atd.
+        return Color.Info;
+    }
 }
