@@ -12,7 +12,7 @@ namespace ChmiCapAlertProvider.DAO
         {
 
             IList<AlertInfoDTO> dtos = new List<AlertInfoDTO>();
-            foreach (var info in this.Areas)
+            foreach (var info in this.SpecificAreas)
             {
                 dtos.Add(new AlertInfoDTO()
                 {
@@ -27,7 +27,8 @@ namespace ChmiCapAlertProvider.DAO
                     Headline = this.Headline,
                     Description = this.Description,
                     Instruction = this.Instruction,
-                    AreaDesc = info.AreaDesc
+                    AreaDesc = info.Area?.AreaDesc ?? string.Empty,
+                    SpecificAreaDesc = info.Description
                 });
 
             }

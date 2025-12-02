@@ -12,50 +12,126 @@
 }
 else
 {
-<MudStack>
-    <MudPaper Class="p-4 mt-2">
-        <MudText Typo="Typo.subtitle2">Filter by Area:</MudText>
-        <MudSelect @bind-Value="selectedRegion" Clearable="true">
-            @foreach (var c in AvailableRegions)
-            {
-                <MudSelectItem Value="@c">@c</MudSelectItem>
-            }
-        </MudSelect>
-    </MudPaper>
+    <MudStack>
+        <MudStack Row="true" Style="width:100%" Justify="Justify.SpaceBetween">
+            <MudPaper Style="width:100%; padding:16px;">
+                <MudText Typo="Typo.subtitle2">Filter by Area:</MudText>
+                <MudSelect @bind-Value="selectedRegion" Clearable="true">
+                    @foreach (var c in AvailableRegions)
+                    {
+                        <MudSelectItem Value="@c">@c</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudPaper>
+
+            <MudPaper Style="width:100%; padding:16px;">
+                <MudText Typo="Typo.subtitle2">Filter by Specific Area:</MudText>
+                <MudSelect @bind-Value="selectedSpecificRegion" Clearable="true">
+                    @foreach (var c in SpecificAreasTuple)
+                    {
+                        if (string.IsNullOrEmpty(selectedRegion) || c.Item1 == selectedRegion)
+                        {
+                            <MudSelectItem Value="@c.Item2">@c.Item2</MudSelectItem>
+                        }
+                    }
+                </MudSelect>
+            </MudPaper>
+        </MudStack>
 
 
-    <MudSpacer />
-    <MudDataGrid Items="FilteredAlertInfoDTOs" FilterCaseSensitivity="DataGridFilterCaseSensitivity.CaseInsensitive" FilterMode="DataGridFilterMode.ColumnFilterMenu">
-        <Columns>
-            <PropertyColumn Property="x => x.Event"></PropertyColumn>
-            <PropertyColumn Property="x => x.Severity" Sortable="true" Filterable="true"></PropertyColumn>
-            <PropertyColumn Property="x => x.Certainty" Sortable="true" Filterable="true"></PropertyColumn>
-            <PropertyColumn Property="x => x.Urgency" Sortable="true" Filterable="true"></PropertyColumn>
-            <PropertyColumn Property="x => x.Description" Sortable="true" Filterable="true"></PropertyColumn>
-            <PropertyColumn Property="x => x.Instruction" Sortable="true" Filterable="true"></PropertyColumn>
-            <PropertyColumn Property="x => x.AreaDesc" Sortable="true" Filterable="true" Title="Area">
-            </PropertyColumn>
-            <PropertyColumn Property="x => x.Onset"></PropertyColumn>
-            <PropertyColumn Property="x => x.Expires"></PropertyColumn>
+        <MudSpacer />
+        <MudDataGrid Items="FilteredAlertInfoDTOs" FilterCaseSensitivity="DataGridFilterCaseSensitivity.CaseInsensitive" FilterMode="DataGridFilterMode.ColumnFilterMenu">
+            <Columns>
+                <PropertyColumn Property="x => x.Event"></PropertyColumn>
+                <PropertyColumn Property="x => x.Severity" Sortable="true" Filterable="true"></PropertyColumn>
+                <PropertyColumn Property="x => x.Certainty" Sortable="true" Filterable="true"></PropertyColumn>
+                <PropertyColumn Property="x => x.Urgency" Sortable="true" Filterable="true"></PropertyColumn>
+                <PropertyColumn Property="x => x.Description" Sortable="true" Filterable="true"></PropertyColumn>
+                <PropertyColumn Property="x => x.Instruction" Sortable="true" Filterable="true"></PropertyColumn>
+                <PropertyColumn Property="x => x.AreaDesc" Sortable="true" Filterable="true" Groupable="true" Title="Area"></PropertyColumn>
+                <PropertyColumn Property="x => x.SpecificAreaDesc" Sortable="true" Filterable="true" Groupable="true" Title="Specific Area"></PropertyColumn>
+                <PropertyColumn Property="x => x.Onset"></PropertyColumn>
+                <PropertyColumn Property="x => x.Expires"></PropertyColumn>
 
-        </Columns>
+            </Columns>
 
-    </MudDataGrid>
-</MudStack>
-    }
+        </MudDataGrid>
+    </MudStack>
+}
 
 
 @code {
     private AlertInfoDTO[]? AlertInfoDTOs;
-    private AlertInfoDTO[]? FilteredAlertInfoDTOs => string.IsNullOrEmpty(selectedRegion)
-        ? AlertInfoDTOs
-        : AlertInfoDTOs?.Where(a => a.AreaDesc != null && a.AreaDesc.Contains(selectedRegion)).ToArray();
+
+    private AlertInfoDTO[]? FilteredAlertInfoDTOs
+    {
+        get
+        {
+
+            var ret = AlertInfoDTOs;
+
+            if (AlertInfoDTOs is null) return Array.Empty<AlertInfoDTO>();
+
+            if (string.IsNullOrEmpty(selectedRegion) == false)
+            {
+                var query = AlertInfoDTOs.Where(a => a.AreaDesc != null &&
+                a.AreaDesc == selectedRegion);
+
+                if (string.IsNullOrEmpty(selectedSpecificRegion) == false)
+                {
+                    query = query.Where(a => a.SpecificAreaDesc == selectedSpecificRegion);
+                }
+
+                ret = query.ToArray();
+            }
+            else if (string.IsNullOrEmpty(selectedSpecificRegion) == false)
+            {
+                var query = AlertInfoDTOs.Where(a => a.SpecificAreaDesc == selectedSpecificRegion);
+                ret = query.ToArray();
+            }
+            return ret;
+
+        }
+    }
+
     private string[] AvailableRegions;
-    private string selectedRegion;
+    private string[] SpecificAreas;
+    private string selectedRegion {
+
+        get;
+        set
+        {
+            field = value;
+            selectedSpecificRegion = string.Empty;
+        }
+    }
+    private string selectedSpecificRegion;
+
+    private List<Tuple<string, string>> SpecificAreasTuple;
 
     protected override async Task OnInitializedAsync()
     {
         AlertInfoDTOs = await CapApi.GetAlertsAsync(); // Replace with actual API call
         AvailableRegions = await CapApi.GetAvailableRegionsAsync();
+
+        SpecificAreasTuple = new();
+
+        foreach (var item in AvailableRegions)
+        {
+            var areas = await CapApi.GetAvailableSpecificRegionsAsync(item);
+
+            foreach (var area in areas)
+            {
+                SpecificAreasTuple.Add(new(item, area));
+            }
+        }
+
+        SpecificAreas = SpecificAreasTuple.Select(x => x.Item2).ToArray();
+
+    }
+
+    private void SelRegionChanged(string e)
+    {
+        selectedSpecificRegion = string.Empty;
     }
 }

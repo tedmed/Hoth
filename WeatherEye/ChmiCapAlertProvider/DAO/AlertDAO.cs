@@ -38,7 +38,7 @@ namespace ChmiCapAlertProvider.DAO
             set { SetPropertyValue<DateTime?>(nameof(Sent), ref fSent, value); }
         }
 
-        [Association("Alert-AlertInfos")]
+        [Association("AlertRefAlertInfos")]
         public XPCollection<AlertInfoDAO> AlertInfos
         {
             get

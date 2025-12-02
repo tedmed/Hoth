@@ -104,8 +104,9 @@
                     .Where(x => importantSeverities.Contains(x.Severity, StringComparer.OrdinalIgnoreCase))
                     // 2. KROK: Seřadíme podle data začátku (nejnovější nahoře)
                     .OrderByDescending(x => x.Onset)
+                    .DistinctBy(x => new { x.AreaDesc, x.Description })
                     // 3. KROK: Vezmeme jen 5 nejnovějších
-                    .Take(5);
+                    .Take(10);
             }
         }
         catch (Exception ex)

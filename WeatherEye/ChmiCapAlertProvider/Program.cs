@@ -1,7 +1,9 @@
 
 using ChmiCapAlertProvider.Handlers;
+using ChmiCapAlertProvider.Services;
 using DevExpress.Xpo;
 using DevExpress.Xpo.DB;
+using DevExpress.Xpo.Metadata;
 using JasperFx.MultiTenancy;
 using OpenTelemetry.Trace;
 using System.Text.Json.Serialization;
@@ -60,11 +62,20 @@ var finalConnectionString =
         conStringParsed["Database"]
     );
 
-XpoDefault.DataLayer = XpoDefault.GetDataLayer(finalConnectionString, AutoCreateOption.DatabaseAndSchema);
+XpoDefault.Session = null;
+string conn = finalConnectionString;
+conn = XpoDefault.GetConnectionPoolString(conn);
+XPDictionary dict = new ReflectionDictionary();
+IDataStore store = XpoDefault.GetConnectionProvider(conn, AutoCreateOption.DatabaseAndSchema);
+dict.GetDataStoreSchema(System.Reflection.Assembly.GetExecutingAssembly());
+IDataLayer dl = new ThreadSafeDataLayer(dict, store);
+
+XpoDefault.DataLayer = dl;
+XpoDefault.Session = null;
 
 builder.AddServiceDefaults();
 builder.Services.AddHostedService<ChmiCapService>();
-
+builder.Services.AddHostedService<AreaUpdaterService>();
 
 var host = builder.Build();
 host.Run();

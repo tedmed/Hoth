@@ -39,6 +39,7 @@ namespace UserService.Handlers
             {
                 PreferenceOid = p.Oid.ToString(),
                 AreaDesc = p.AreaDesc,
+                SpecificAreaDesc = p.SpecificAreaDesc,
                 EmailNotification = p.EmailNotification,
                 InAppNotification = p.InAppNotification
             }).ToList();

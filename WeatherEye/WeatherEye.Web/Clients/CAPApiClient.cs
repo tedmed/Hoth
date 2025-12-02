@@ -21,17 +21,32 @@ public class CAPApiClient(HttpClient httpClient)
 
     public async Task<string[]> GetAvailableRegionsAsync(CancellationToken cancellationToken = default)
     {
-        HashSet<string> AlertInfos = new();
+        HashSet<string> areaDescs = new();
 
         await foreach (var alertInfo in httpClient.GetFromJsonAsAsyncEnumerable<string>("/CAP/AvailableRegions", cancellationToken))
         {
             if (alertInfo is not null)
             {
-                AlertInfos.Add(alertInfo);
+                areaDescs.Add(alertInfo);
             }
         }
 
-        return AlertInfos?.ToArray() ?? [];
+        return areaDescs?.ToArray() ?? [];
+    }
+
+    public async Task<string[]> GetAvailableSpecificRegionsAsync(string AreaDesc,CancellationToken cancellationToken = default)
+    {
+        HashSet<string> specificAreasDescs = new();
+
+        await foreach (var alertInfo in httpClient.GetFromJsonAsAsyncEnumerable<string>($"/CAP/AvailableSpecificRegions?AreaDesc={AreaDesc}", cancellationToken))
+        {
+            if (alertInfo is not null)
+            {
+                specificAreasDescs.Add(alertInfo);
+            }
+        }
+
+        return specificAreasDescs?.ToArray() ?? [];
     }
 
     public async Task<AlertInfoDTO[]> GetUserSpecificAlertsAsync(CancellationToken cancellationToken = default)
