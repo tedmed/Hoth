@@ -42,7 +42,7 @@ namespace EmailNotificationService.Handlers
                 foreach (var pref in userPreferences)
                 {
                     var alertQuery = alerts.Where(a => a.AreaDesc == pref.AreaDesc);
-
+                    //TODO: dořešit ostatní fitry, které ukládáme v preferencích
                     //if(string.IsNullOrWhiteSpace(pref.SpecificAreaDesc) == false)
                     //{
                     //    alertQuery = alertQuery.Where(a => a.SpecificAreaDesc == pref.SpecificAreaDesc);
