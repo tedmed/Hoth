@@ -8,7 +8,7 @@ public class UserApiClient(HttpClient httpClient)
         return await httpClient.GetFromJsonAsync<Guid>("/User/Info", cancellationToken);
     }
 
-    public async Task<Guid> SaveAlertPreference(string Region,bool emailNotification = false, bool inAppNotification = false, CancellationToken cancellationToken = default)
+    public async Task SaveAlertPreference(string Region,bool emailNotification = false, bool inAppNotification = false, CancellationToken cancellationToken = default)
     {
 
         AlertPreferenceDTO alertPreference = new()
@@ -20,8 +20,8 @@ public class UserApiClient(HttpClient httpClient)
 
         var response = await httpClient.PostAsJsonAsync("/User/Preferences", alertPreference, cancellationToken);
         response.EnsureSuccessStatusCode();
-        var savedPreferenceId = await response.Content.ReadFromJsonAsync<Guid>(cancellationToken: cancellationToken);
-        return savedPreferenceId;
+        //var savedPreferenceId = await response.Content.ReadFromJsonAsync<Guid>(cancellationToken: cancellationToken);
+        //return savedPreferenceId;
     }
 
     public async Task DeleteAlertPreferenceAsync(string PreferenceOid,CancellationToken cancellationToken = default)
