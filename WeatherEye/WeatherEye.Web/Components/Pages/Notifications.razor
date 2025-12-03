@@ -1,6 +1,7 @@
 ﻿@page "/notifications"
 @inject CAPApiClient CapApi
 @inject UserApiClient UserApi
+@inject ISnackbar Snackbar
 
 <MudText Typo="Typo.h4" GutterBottom="true">
     🔔 Nastavení Notifikací
@@ -9,163 +10,358 @@
 <MudText Typo="Typo.subtitle1" Class="mb-4">
     Zde si můžete nastavit, jaké výstrahy a jakým způsobem chcete dostávat.
 </MudText>
-@if (AvailableRegions == null)
+
+@if (_isLoading)
 {
-    <MudProgressCircular Color="Color.Default" Indeterminate="true" />
+    <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
 }
 else
 {
-    @foreach (var block in filterBlocks)
-    {
-        <MudPaper Class="pa-16 ma-2" Elevation="3">
-            <MudGrid>
-                <MudItem xs="12" sm="6">
-                    <MudSelect T="string" Label="Oblast" @bind-Value="block.SelectedRegion" Clearable="true">
-                        @foreach (var a in AvailableRegions)
-                        {
-                            <MudSelectItem Value="@a">@a</MudSelectItem>
-                        }
-                    </MudSelect>
-                </MudItem>
+    <div class="d-flex flex-column gap-3">
+        <MudPaper Class="pa-4 ma-2 d-flex align-center justify-space-between" Elevation="1">
+            <div class="d-flex flex-column flex-sm-row gap-4 align-sm-center" style="width: 100%">
 
-                <MudItem xs="12" sm="6">
-                    <MudSelect T="string" Label="Typ události" @bind-Value="block.SelectedEvent">
-                        <MudSelectItem Value="@("Vsechny")">Všechny</MudSelectItem>
-                        <MudSelectItem Value="@("Silny_vitr")">Silný vítr</MudSelectItem>
-                        <MudSelectItem Value="@("Snezeni")">Sněžení/Ledovka</MudSelectItem>
-                    </MudSelect>
-                </MudItem>
+                @* Informace o oblasti *@
+                <div style="min-width: 200px;">
+                    <MudText Typo="Typo.caption">Oblast</MudText>
+                    <MudText Typo="Typo.subtitle1" Color="Color.Primary"><b>Hlavní město Praha</b></MudText>
+                </div>
 
-                <MudItem xs="12" sm="6">
-                    <MudSelect T="string" Label="Síla hrozby (Severity)" @bind-Value="block.SelectedSeverity">
-                        <MudSelectItem Value="@("Vsechny")">Všechny</MudSelectItem>
-                        <MudSelectItem Value="@("Minor")">Minor (Mírná)</MudSelectItem>
-                        <MudSelectItem Value="@("Moderate")">Moderate (Střední)</MudSelectItem>
-                        <MudSelectItem Value="@("Severe")">Severe (Velká)</MudSelectItem>
-                    </MudSelect>
-                </MudItem>
+                @* Informace o filtrech *@
+                <div class="d-flex gap-4">
+                    <div>
+                        <MudText Typo="Typo.caption">Událost</MudText>
+                        <MudText Typo="Typo.body2">Sněžení</MudText>
+                    </div>
+                    <div>
+                        <MudText Typo="Typo.caption">Severity</MudText>
+                        <MudText Typo="Typo.body2">Všechny</MudText>
+                    </div>
+                </div>
 
+                @* Ikony pro kanály (App/Email) *@
+                <div class="d-flex gap-2 align-center ml-sm-auto">
+                    @if (true)
+                    {
+                        <MudTooltip Text="Notifikace do aplikace">
+                            <MudIcon Icon="@Icons.Material.Filled.Smartphone" Color="Color.Primary" />
+                        </MudTooltip>
+                    }
+                    @if (true)
+                    {
+                        <MudTooltip Text="Notifikace na email">
+                            <MudIcon Icon="@Icons.Material.Filled.Email" Color="Color.Primary" />
+                        </MudTooltip>
+                    }
+                </div>
+            </div>
 
-
-                <MudDivider Class="my-6" />
-
-                <MudText Typo="Typo.h6" Class="mb-4">
-                    Způsob upozornění
-                </MudText>
-
-                <MudGrid>
-                    <MudItem xs="12" sm="6">
-                        <MudCheckBox T="bool" Checked="true" Color="Color.Primary" @bind-Value="block.MobApp" Label="Upozornění do aplikace (Bell icon)" />
-                    </MudItem>
-
-                    <MudItem xs="12" sm="6">
-                        <MudCheckBox T="bool" Checked="false" Color="Color.Secondary" @bind-Value="block.Email" Label="Upozornění emailem" />
-                    </MudItem>
-                </MudGrid>
-            </MudGrid>
-            <MudDivider Class="my-6" />
-
-            <MudItem xs="12">
-                <MudButton Color="Color.Error" Variant="Variant.Filled" OnClick="() => RemoveBlock(block)">Odstranit notifikaci</MudButton>
-            </MudItem>
-
+            @* Akční tlačítka vpravo *@
+            <div class="d-flex gap-2 pl-4 border-l ml-4">
+                <MudTooltip Text="@(filterBlocks.Any(b => b.IsEditing) ? "Nejprve dokončete rozdělanou úpravu" : "Upravit")">
+                    <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                                   Color="Color.Default"
+                                   Disabled="@(filterBlocks.Any(b => b.IsEditing))"/>
+                </MudTooltip>
+            </div>
         </MudPaper>
-    }
-}
-<MudGrid>
-    <MudItem xs="12">
-        <MudButton Color="Color.Primary" Variant="Variant.Filled" Class="mt-6" OnClick="AddNewBlock">
-            Přidat notifikaci
-        </MudButton>
-    </MudItem>
+        @foreach (var block in filterBlocks)
+        {
+            @if (block.IsEditing)
+            {
+                // --- EDITOVACÍ REŽIM (VELKÁ KARTA) ---
+                <MudPaper Class="pa-6 ma-2 relative-paper" Elevation="4" Outlined="true" Style="border-left: 5px solid var(--mud-palette-primary);">
+                    <MudGrid>
+                        <MudItem xs="12">
+                            <MudText Typo="Typo.h6">@(block.IsNew ? "Nová notifikace" : "Úprava notifikace")</MudText>
+                        </MudItem>
 
-    <MudItem xs="12">
-        <MudButton Color="Color.Success" Variant="Variant.Filled" Class="mt-6" OnClick="SavePreferences">
-            💾 Uložit Notifikace
-        </MudButton>
-    </MudItem>
-</MudGrid>
+                        <MudItem xs="12" sm="6">
+                            <MudSelect T="string" Label="Oblast" @bind-Value="block.SelectedRegion" Clearable="true" Required="true" HelperText="Vyberte lokalitu">
+                                @foreach (var region in AvailableRegions)
+                                {
+                                    <MudSelectItem Value="@region">@region</MudSelectItem>
+                                }
+                            </MudSelect>
+                        </MudItem>
+
+                        <MudItem xs="12" sm="6">
+                            <MudSelect T="string" Label="Typ události" @bind-Value="block.SelectedEvent">
+                                <MudSelectItem Value="@("Vsechny")">Všechny</MudSelectItem>
+                                <MudSelectItem Value="@("Silny_vitr")">Silný vítr</MudSelectItem>
+                                <MudSelectItem Value="@("Snezeni")">Sněžení/Ledovka</MudSelectItem>
+                            </MudSelect>
+                        </MudItem>
+
+                        <MudItem xs="12" sm="6">
+                            <MudSelect T="string" Label="Síla hrozby" @bind-Value="block.SelectedSeverity">
+                                <MudSelectItem Value="@("Vsechny")">Všechny</MudSelectItem>
+                                <MudSelectItem Value="@("Minor")">Minor (Mírná)</MudSelectItem>
+                                <MudSelectItem Value="@("Moderate")">Moderate (Střední)</MudSelectItem>
+                                <MudSelectItem Value="@("Severe")">Severe (Velká)</MudSelectItem>
+                            </MudSelect>
+                        </MudItem>
+
+                        <MudItem xs="12" sm="6">
+                            <MudText Typo="Typo.body2" Class="mb-2">Způsob doručení:</MudText>
+                            <div class="d-flex gap-4">
+                                <MudCheckBox T="bool" Color="Color.Primary" @bind-Value="block.MobApp" Label="Aplikace" />
+                                <MudCheckBox T="bool" Color="Color.Secondary" @bind-Value="block.Email" Label="Email" />
+                            </div>
+                        </MudItem>
+
+                        <MudItem xs="12" Class="d-flex justify-end gap-2 mt-2">
+                            @if (!block.IsNew)
+                            {
+                                <MudButton Variant="Variant.Text" OnClick="@(() => CancelEdit(block))">Zrušit změny</MudButton>
+                            }
+
+                            <MudButton Color="Color.Error"
+                                       Variant="Variant.Outlined"
+                                       StartIcon="@Icons.Material.Filled.Delete"
+                                       OnClick="() => RemoveBlock(block)">
+                                @(block.IsNew ? "Zahodit" : "Smazat")
+                            </MudButton>
+
+                            <MudButton Color="Color.Success"
+                                       Variant="Variant.Filled"
+                                       StartIcon="@Icons.Material.Filled.Save"
+                                       OnClick="() => SaveBlock(block)">
+                                Uložit
+                            </MudButton>
+                        </MudItem>
+                    </MudGrid>
+                </MudPaper>
+            }
+            else
+            {
+                // --- POHLED (JEDNOŘÁDKOVÁ KARTA) ---
+                <MudPaper Class="pa-4 ma-2 d-flex align-center justify-space-between" Elevation="1">
+                    <div class="d-flex flex-column flex-sm-row gap-4 align-sm-center" style="width: 100%">
+
+                        @* Informace o oblasti *@
+                        <div style="min-width: 200px;">
+                            <MudText Typo="Typo.caption">Oblast</MudText>
+                            <MudText Typo="Typo.subtitle1" Color="Color.Primary"><b>@block.SelectedRegion</b></MudText>
+                        </div>
+
+                        @* Informace o filtrech *@
+                        <div class="d-flex gap-4">
+                            <div>
+                                <MudText Typo="Typo.caption">Událost</MudText>
+                                <MudText Typo="Typo.body2">@block.SelectedEvent</MudText>
+                            </div>
+                            <div>
+                                <MudText Typo="Typo.caption">Severity</MudText>
+                                <MudText Typo="Typo.body2">@block.SelectedSeverity</MudText>
+                            </div>
+                        </div>
+
+                        @* Ikony pro kanály (App/Email) *@
+                        <div class="d-flex gap-2 align-center ml-sm-auto">
+                            @if (block.MobApp)
+                            {
+                                <MudTooltip Text="Notifikace do aplikace">
+                                    <MudIcon Icon="@Icons.Material.Filled.Smartphone" Color="Color.Primary" />
+                                </MudTooltip>
+                            }
+                            @if (block.Email)
+                            {
+                                <MudTooltip Text="Notifikace na email">
+                                    <MudIcon Icon="@Icons.Material.Filled.Email" Color="Color.Primary" />
+                                </MudTooltip>
+                            }
+                        </div>
+                    </div>
+
+                    @* Akční tlačítka vpravo *@
+                    <div class="d-flex gap-2 pl-4 border-l ml-4">
+                        <MudTooltip Text="@(filterBlocks.Any(b => b.IsEditing) ? "Nejprve dokončete rozdělanou úpravu" : "Upravit")">
+                            <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                                           Color="Color.Default"
+                                           Disabled="@(filterBlocks.Any(b => b.IsEditing))"
+                                           OnClick="@(() => block.IsEditing = true)" />
+                        </MudTooltip>
+                    </div>
+                </MudPaper>
+            }
+        }
+    </div>
+
+    @* Tlačítko pro přidání je nyní samostatně dole nebo nahoře, mimo cyklus *@
+    <div class="mt-4 ml-2">
+        <MudTooltip Text="@(filterBlocks.Any(b => b.IsEditing) ? "Před přidáním další notifikace dokončete nebo zrušte aktuální úpravy." : null)">
+            <MudButton Color="Color.Primary"
+                       Variant="Variant.Filled"
+                       StartIcon="@Icons.Material.Filled.Add"
+                       Disabled="@(_isProcessing || filterBlocks.Any(b => b.IsEditing))"
+                       OnClick="AddNewBlock">
+                Přidat novou notifikaci
+            </MudButton>
+        </MudTooltip>
+    </div>
+}
 
 @code {
-    private string[] AvailableRegions;
-    private Preferences.DTO.AlertPreferenceDTO[] AlertPreferences;
+    private string[] AvailableRegions = Array.Empty<string>();
+    private List<FilterBlock> filterBlocks = new();
+    private bool _isLoading = true;
+    private bool _isProcessing = false;
+
+    // Rozšířený model pro potřeby UI
+    public class FilterBlock
+    {
+        public Guid? Oid { get; set; }
+        public string SelectedRegion { get; set; } = "";
+        public string SelectedEvent { get; set; } = "Vsechny";
+        public string SelectedSeverity { get; set; } = "Vsechny";
+        public bool Email { get; set; }
+        public bool MobApp { get; set; }
+
+        // UI stavy
+        public bool IsEditing { get; set; } = false;
+        public bool IsNew => Oid == null;
+
+        // Záloha pro funkci "Zrušit změny" (nepovinné, ale dobré pro UX)
+        public FilterBlock Clone()
+        {
+            return (FilterBlock)this.MemberwiseClone();
+        }
+
+        public void RestoreFrom(FilterBlock backup)
+        {
+            this.SelectedRegion = backup.SelectedRegion;
+            this.SelectedEvent = backup.SelectedEvent;
+            this.SelectedSeverity = backup.SelectedSeverity;
+            this.Email = backup.Email;
+            this.MobApp = backup.MobApp;
+        }
+    }
+
+    // Slovník pro zálohy originálních dat při editaci
+    private Dictionary<FilterBlock, FilterBlock> _editBackups = new();
 
     protected override async Task OnInitializedAsync()
     {
-        AvailableRegions = await CapApi.GetAvailableRegionsAsync();
-        AlertPreferences = await UserApi.GetAlertPreferenceAsync();
-        foreach (var item in AlertPreferences)
+        try
         {
-            AddNewBlock(item.AreaDesc,"","",item.EmailNotification,item.InAppNotification);
+            _isLoading = true;
+            var regionsTask = CapApi.GetAvailableRegionsAsync();
+            var preferencesTask = UserApi.GetAlertPreferenceAsync();
+
+            await Task.WhenAll(regionsTask, preferencesTask);
+            AvailableRegions = await regionsTask;
+            var alertPreferences = await preferencesTask;
+
+            foreach (var item in alertPreferences)
+            {
+                filterBlocks.Add(new FilterBlock
+                {
+                    Oid = string.IsNullOrEmpty(item.PreferenceOid) ? (Guid?)null : Guid.Parse(item.PreferenceOid),
+                    SelectedRegion = item.AreaDesc,
+                    Email = item.EmailNotification,
+                    MobApp = item.InAppNotification,
+                    // Defaultně načtené položky nejsou v režimu editace
+                    IsEditing = false
+                });
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Chyba při načítání: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            _isLoading = false;
         }
     }
-    // Seznam bloků, kde každý blok obsahuje výběr hodnot
-    private List<FilterBlock> filterBlocks = new List<FilterBlock>();
 
-    // Třída, která drží vybrané hodnoty pro každý blok
-    public class FilterBlock
-    {
-        public string SelectedRegion { get; set; }
-        public string SelectedEvent { get; set; }
-        public string SelectedSeverity { get; set; }
-        public bool Email { get; set; }
-        public bool MobApp { get; set; }
-    }
-
-    // Funkce pro přidání nového bloku
     private void AddNewBlock()
     {
-        filterBlocks.Add(new FilterBlock
-        {
-            SelectedRegion = "", // default value
-            SelectedEvent = "",          // default value
-            SelectedSeverity = "",        // default value
-            Email = false,
-            MobApp = false
-        });
+        // Přidáme nový blok rovnou v režimu editace
+        var newBlock = new FilterBlock { IsEditing = true, Email = true };
+        filterBlocks.Add(newBlock);
     }
 
-    private void AddNewBlock(string SelectedRegion = "", string SelectedEvent = "", string SelectedSeverity = "",bool Email = false,bool MobApp = false)
+    private void CancelEdit(FilterBlock block)
     {
-        filterBlocks.Add(new FilterBlock
+        if (block.IsNew)
         {
-            SelectedRegion = SelectedRegion, // default value
-            SelectedEvent = SelectedEvent,          // default value
-            SelectedSeverity = SelectedSeverity,        // default value
-            MobApp = MobApp,
-            Email = Email
-        });
-    }
-
-    private async void SavePreferences()
-    {
-        foreach (var item in filterBlocks)
+            // Pokud ruším editaci úplně nové položky, rovnou ji smažu
+            filterBlocks.Remove(block);
+        }
+        else
         {
-            try
-            {
-                await UserApi.SaveAlertPreference(item.SelectedRegion,item.Email,item.MobApp);
-
-            }
-            catch (Exception e)
-            {
-
-            }
+            // Pokud ruším editaci existující, jen zavřu edit mode
+            // (Volitelně zde můžete implementovat návrat k původním hodnotám, pokud byste si je uložili při otevření editace)
+            block.IsEditing = false;
         }
     }
 
-
-    // Funkce pro odstranění bloku
-    private void RemoveBlock(FilterBlock block)
+    private async Task SaveBlock(FilterBlock block)
     {
-        filterBlocks.Remove(block);
+        if (string.IsNullOrWhiteSpace(block.SelectedRegion))
+        {
+            Snackbar.Add("Musíte vybrat oblast.", Severity.Warning);
+            return;
+        }
 
-        var pref = AlertPreferences
-            .Where(x => x.AreaDesc == block.SelectedRegion &&
-            x.EmailNotification == block.Email &&
-            x.InAppNotification == block.MobApp
-        ).FirstOrDefault();
-        if (pref is null) return;
+        try
+        {
+            _isProcessing = true; // Zde spíše lokální loading indikátor, ale pro jednoduchost globální
 
-        UserApi.DeleteAlertPreferenceAsync(pref.PreferenceOid);
+            // Volání API pro uložení jednoho záznamu
+            // Předpokládám, že API vrací nějaký výsledek nebo ID.
+            // Pokud API vrací objekt s novým OID, je nutné ho zde přiřadit!
+
+            // Příklad: var result = await UserApi.SaveAlertPreference(...)
+            await UserApi.SaveAlertPreference(block.SelectedRegion, block.Email, block.MobApp);
+
+            // Simuace získání ID pokud je to nový záznam (pokud to vaše API vrací, doplňte to sem)
+            // if(block.Oid == null) block.Oid = result.NewId;
+
+            // Pokud API nevrací ID hned, možná bude nutný reload, ale pro UX předpokládejme úspěch:
+            block.IsEditing = false;
+
+            Snackbar.Add("Notifikace uložena", Severity.Success);
+
+            // Pokud je to nový blok a nemáme ID z API, doporučuji udělat tichý reload dat,
+            // aby se spárovaly OID pro budoucí mazání.
+            if (block.IsNew)
+            {
+                // await OnInitializedAsync(); // Volitelné: Obnovit data pro získání ID
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Chyba při ukládání: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            _isProcessing = false;
+        }
+    }
+
+    private async Task RemoveBlock(FilterBlock block)
+    {
+        // 1. Pokud je to nová neuložená, jen smažeme z UI
+        if (block.Oid == null)
+        {
+            filterBlocks.Remove(block);
+            return;
+        }
+
+        // 2. Pokud existuje v DB, voláme API
+        try
+        {
+            // Můžete přidat DialogService pro potvrzení smazání ("Opravdu smazat?")
+            await UserApi.DeleteAlertPreferenceAsync(block.Oid.Value.ToString());
+            filterBlocks.Remove(block);
+            Snackbar.Add("Notifikace odstraněna", Severity.Success);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Chyba při mazání: {ex.Message}", Severity.Error);
+        }
     }
 }
