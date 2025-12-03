@@ -57,7 +57,7 @@ public class ChmiCapService : BackgroundService
                     using StringReader reader = new StringReader(response.Content!);
                     CAP.Alert? alert = (CAP.Alert?)xmlSerializer.Deserialize(reader);
 
-                    if (alert is null) continue;
+                    if (alert is null) return;
                     using var uow = new UnitOfWork();
 
                     var existingAlert = uow.Query<AlertDAO>().Where(x => x.Identifier == alert.Identifier).FirstOrDefault();
@@ -75,7 +75,7 @@ public class ChmiCapService : BackgroundService
                     else
                     {
                         _logger.LogInformation("Alert with Identifier {identifier} already exists. Skipping.", alert.Identifier);
-                        continue;
+                        return;
                     }
 
 
@@ -83,20 +83,12 @@ public class ChmiCapService : BackgroundService
                     {
                         AlertInfoDAO dao = new AlertInfoDAO(uow);
                         dao.SetProperties(info, alert, uow);
-                        existingAlert.AlertInfos.Add(dao);
-
-                        _logger.LogInformation("Publishing AlertInfo");
-
-                        var dtos = dao.TransformToDTOs();
-
-                        foreach (var dto in dtos)
-                            await bus.PublishAsync(new NewAlertCreated(dto));
-
+                        existingAlert.AlertInfos.Add(dao);                     
                         uow.CommitChanges();
                     }
 
                     await uow.CommitChangesAsync();
-                    // Process the response.Content as needed
+                    await bus.PublishAsync(new AlertsUpdated());
                 }         
             else
             {

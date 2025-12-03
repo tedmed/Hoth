@@ -18,6 +18,12 @@ namespace MessagingContracts
     public record UserOidRequest(string Username,string Email);
     public record UserOidResponse(Guid UserOid);
 
+    public record UserEmailRequest(Guid UserOid);
+    public record UserEmailResponse(string Email);
+
+    public record UsersOidRequest();
+    public record UsersOidResponse(IList<Guid> Users);
+
     public record SaveUserMobAppIdRequest(Guid UserOid,string MobAppId);
     public record SaveUserMobAppIdResponse(bool ok);
 
