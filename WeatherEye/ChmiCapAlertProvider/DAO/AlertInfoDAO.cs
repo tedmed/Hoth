@@ -1,4 +1,5 @@
 ﻿using CAP;
+using DevExpress.Data.Filtering;
 using DevExpress.Xpo;
 using RabbitMQ.Client.Exceptions;
 using System;
@@ -169,14 +170,14 @@ namespace ChmiCapAlertProvider.DAO
             set { SetPropertyValue<DateTime?>(nameof(Effective), ref fEffective, value); }
         }
 
-        [Association("AlertRefArea")]
-        public XPCollection<AreaDAO> Areas
+        [Association("AlertRefSpecificArea")]
+        public XPCollection<SpecificAreaDAO> SpecificAreas
         {
-            get { return GetCollection<AreaDAO>(nameof(Areas)); }
+            get { return GetCollection<SpecificAreaDAO>(nameof(SpecificAreas)); }
         }
 
         private AlertDAO fAlert;
-        [Association("Alert-AlertInfos")]
+        [Association("AlertRefAlertInfos")]
         public AlertDAO Alert
         {
             get { return fAlert; }
@@ -192,7 +193,7 @@ namespace ChmiCapAlertProvider.DAO
         //public List<AreaDAO> Area { get; set; }
         public AlertInfoDAO(Session session) : base(session) { }
 
-        public void SetProperties(AlertInfo info, Alert alert)
+        public void SetProperties(AlertInfo info, Alert alert,UnitOfWork uow)
         {
             Identifier = alert.Identifier;
             Sent = DateTime.SpecifyKind(alert.Sent, DateTimeKind.Utc);
@@ -223,25 +224,23 @@ namespace ChmiCapAlertProvider.DAO
             Instruction = info.Instruction;
             Web = info.Web;
             Contact = info.Contact;
-
+            
             foreach (var area in info.Area)
             {
-                XPQuery<AreaDAO> query = Session.Query<AreaDAO>();
-                var areaDAOExisting = query.Where(a => a.AreaDesc == area.AreaDesc)
-                    .FirstOrDefault();
-
-                if (areaDAOExisting is not null)
+                foreach (var code in area.Geocode)
                 {
-                    Areas.Add(areaDAOExisting);
-                }
-                else
-                {
-                    AreaDAO areaDAO = new AreaDAO(Session);
-                    areaDAO.SetProperties(area);
-                    areaDAO.Save();
-                    Areas.Add(areaDAO);
-                }
+                    if (code.ValueName.ToLower() != "cisorp") continue;
 
+                    var areaDAOExisting = uow.FindObject<SpecificAreaDAO>(
+                        CriteriaOperator.FromLambda<SpecificAreaDAO>(x => x.CisorpId == code.Value)
+                    );
+
+                    if (areaDAOExisting is not null)
+                    {
+                        
+                        SpecificAreas.Add(areaDAOExisting);
+                    }                    
+                }
             }
 
         }

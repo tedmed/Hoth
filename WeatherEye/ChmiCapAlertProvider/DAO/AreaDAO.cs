@@ -42,11 +42,12 @@ namespace ChmiCapAlertProvider.DAO
             set { SetPropertyValue<decimal?>(nameof(Ceiling), ref fCeiling, value); }
         }
 
-        [Association("AlertRefArea")]
-        public XPCollection<AlertInfoDAO> Alerts
+        [Association("AreaRefSpecificAreas")]
+        public XPCollection<SpecificAreaDAO> SpecificAreas
         {
-            get { return GetCollection<AlertInfoDAO>(nameof(Alerts)); }
+            get { return GetCollection<SpecificAreaDAO>(nameof(SpecificAreas)); }
         }
+
 
         public AreaDAO(Session session) : base(session) { }
 

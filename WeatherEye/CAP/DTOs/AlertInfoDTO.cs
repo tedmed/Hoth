@@ -21,9 +21,7 @@ namespace CAP.DTOs
         public string Instruction { get; set; } = string.Empty;
         
         public string AreaDesc { get; set; } = string.Empty;
-
-
-
+        public string SpecificAreaDesc { get; set; } = string.Empty;
 
         public AlertInfoDTO()
         {

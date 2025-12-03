@@ -52,6 +52,15 @@ namespace WeatherEye.API.Controllers
             return Ok(res.regions);
         }
 
+        [HttpGet("AvailableSpecificRegions")]
+        [OutputCache(Duration = 30)]
+        public async Task<IActionResult> GetAvailableSpecificRegions([FromQuery] string AreaDesc)
+        {
+            using IServiceScope scope = serviceScopeFactory.CreateScope();
+            var bus = scope.ServiceProvider.GetRequiredService<IMessageContext>();
 
+            var res = await bus.InvokeAsync<AlertSpecificAreaResponse>(new AlertSpecificAreaRequest(AreaDesc));
+            return Ok(res.specificRegions);
+        }
     }
 }

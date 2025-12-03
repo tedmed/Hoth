@@ -33,6 +33,14 @@ namespace UserService.DAO
             set { SetPropertyValue<string>(nameof(AreaDesc), ref fAreaDesc, value); }
         }
 
+        private string fSpecificAreaDesc;
+        [Size(1000)]
+        public string SpecificAreaDesc
+        {
+            get { return fAreaDesc; }
+            set { SetPropertyValue<string>(nameof(SpecificAreaDesc), ref fSpecificAreaDesc, value); }
+        }
+
         private bool fEmailNotification;
 
         public bool EmailNotification
