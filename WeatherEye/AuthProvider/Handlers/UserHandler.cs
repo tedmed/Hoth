@@ -43,7 +43,7 @@ namespace UserService.Handlers
                     Username = requst.Username,
                     Email = requst.Email
                 };
-                newUserDAO.Save();
+                uow.CommitChanges();
                 _logger.LogInformation("New user created: {Username}, Oid: {Oid}", newUserDAO.Username, newUserDAO.Oid);
                 return new UserOidResponse(newUserDAO.Oid);
             }
