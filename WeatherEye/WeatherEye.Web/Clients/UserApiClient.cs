@@ -1,4 +1,5 @@
-﻿using Preferences.DTO;
+﻿using CAP;
+using Preferences.DTO;
 
 
 public class UserApiClient(HttpClient httpClient)
@@ -8,14 +9,17 @@ public class UserApiClient(HttpClient httpClient)
         return await httpClient.GetFromJsonAsync<Guid>("/User/Info", cancellationToken);
     }
 
-    public async Task SaveAlertPreference(string Region,bool emailNotification = false, bool inAppNotification = false, CancellationToken cancellationToken = default)
+    public async Task SaveAlertPreference(string Region,string SpecificArea, AlertInfoSeverity alertInfoSeverity, AlertInfoCertainty alertInfoCertainty, bool emailNotification = false, bool inAppNotification = false, CancellationToken cancellationToken = default)
     {
 
         AlertPreferenceDTO alertPreference = new()
         {
             AreaDesc = Region,
+            SpecificAreaDesc = SpecificArea,
             EmailNotification = emailNotification,
-            InAppNotification = inAppNotification
+            InAppNotification = inAppNotification,
+            AlertInfoSeverity = (int)alertInfoSeverity,
+            AlertInfoCertainty = (int)alertInfoCertainty,
         };
 
         var response = await httpClient.PostAsJsonAsync("/User/Preferences", alertPreference, cancellationToken);

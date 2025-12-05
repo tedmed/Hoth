@@ -1,4 +1,5 @@
-﻿using CAP.DTOs;
+﻿using CAP;
+using CAP.DTOs;
 using EmailNotificationService.Services;
 using MessagingContracts;
 using System;
@@ -42,11 +43,14 @@ namespace EmailNotificationService.Handlers
                 foreach (var pref in userPreferences)
                 {
                     var alertQuery = alerts.Where(a => a.AreaDesc == pref.AreaDesc);
-                    //TODO: dořešit ostatní fitry, které ukládáme v preferencích
-                    //if(string.IsNullOrWhiteSpace(pref.SpecificAreaDesc) == false)
-                    //{
-                    //    alertQuery = alertQuery.Where(a => a.SpecificAreaDesc == pref.SpecificAreaDesc);
-                    //}
+
+                    if (string.IsNullOrWhiteSpace(pref.SpecificAreaDesc) == false)
+                    {
+                        alertQuery = alertQuery.Where(a => a.SpecificAreaDesc == pref.SpecificAreaDesc);
+                    }
+
+                    alertQuery = alertQuery.Where(a => a.Certainty <= pref.AlertInfoCertainty);
+                    alertQuery = alertQuery.Where(a => a.Severity <= pref.AlertInfoSeverity);
 
 
                     foreach (var alertInfo in alertQuery)
@@ -67,6 +71,7 @@ namespace EmailNotificationService.Handlers
                 string userEmail = userEmailResponse.Email;
 
                 string emailHtml = GetEmailHtml(grouped);
+                if (string.IsNullOrWhiteSpace(emailHtml)) continue;
 
                 _emailSender.SendEmail(userEmail, "Nové výstrahy CAP", emailHtml, true);
             }
@@ -79,15 +84,17 @@ namespace EmailNotificationService.Handlers
 
             foreach (var eventGroup in grouped)
             {
-                var sample = eventGroup.SelectMany(g => g).First(); // pro metadata
+                var sample = eventGroup.SelectMany(g => g).First();
 
-                sb.AppendLine("<div style='border:1px solid #ccc;background:#f8f8f8;"
+                string bg = GetSeverityColor(sample.Severity);
+
+                sb.AppendLine($"<div style='border:1px solid #ccc;background:{bg};"
                             + "padding:12px;border-radius:6px;margin-bottom:18px;font-family:Arial;'>");
 
                 sb.AppendLine($"<h2 style='margin:0 0 5px 0;font-size:18px;'>{sample.Event}</h2>");
 
                 sb.AppendLine($"<div style='font-size:13px;color:#555;margin-bottom:10px;'>"
-                            + $"Urgency: {sample.Urgency} • Severity: {sample.Severity} • Certainty: {sample.Certainty}</div>");
+                            + $"Urgency: {GetUrgencyText(sample.Urgency)} • Severity: {GetSeverityText(sample.Severity)} • Certainty: {GetCertaintyText(sample.Certainty)}</div>");
 
                 foreach (var areaGroup in eventGroup)
                 {
@@ -105,5 +112,30 @@ namespace EmailNotificationService.Handlers
             string emailHtml = sb.ToString();
             return emailHtml;
         }
+
+        static string GetSeverityColor(int severity) =>
+                                      severity switch
+    {
+        (int)AlertInfoSeverity.Extreme => "#ffe5e5", // světle červená
+        (int)AlertInfoSeverity.Severe => "#ffe9d6", // světle oranžová
+        (int)AlertInfoSeverity.Moderate => "#fff9d6", // světle žlutá
+        _ => "#f8f8f8"                        // minor/unknown – světle šedá
+    };
+
+        private static string GetSeverityText(int? severity)
+        {
+            return Enum.GetName<CAP.AlertInfoSeverity>((CAP.AlertInfoSeverity)(severity ?? 0)) ?? "";
+        }
+
+        private static string GetCertaintyText(int? certainty)
+        {
+            return Enum.GetName<CAP.AlertInfoCertainty>((CAP.AlertInfoCertainty)(certainty ?? 0)) ?? "";
+        }
+
+        private static string GetUrgencyText(int? urgency)
+        {
+            return Enum.GetName<CAP.AlertInfoUrgency>((CAP.AlertInfoUrgency)(urgency ?? 0)) ?? "";
+        }
+
     }
 }

@@ -115,5 +115,16 @@ namespace WeatherEye.API.Controllers
             var res = await bus.InvokeAsync<AlertSpecificAreaResponse>(new AlertSpecificAreaRequest(AreaDesc));
             return Ok(res.specificRegions);
         }
+
+        [HttpGet("AllAvailableSpecificRegions")]
+        [OutputCache(Duration = 30)]
+        public async Task<IActionResult> GetAllAvailableSpecificRegions()
+        {
+            using IServiceScope scope = serviceScopeFactory.CreateScope();
+            var bus = scope.ServiceProvider.GetRequiredService<IMessageContext>();
+
+            var res = await bus.InvokeAsync<AlertAllSpecificAreasResponse>(new AlertAllSpecificAreasRequest());
+            return Ok(res.specificRegions);
+        }
     }
 }

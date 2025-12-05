@@ -41,7 +41,9 @@ namespace UserService.Handlers
                 AreaDesc = p.AreaDesc,
                 SpecificAreaDesc = p.SpecificAreaDesc,
                 EmailNotification = p.EmailNotification,
-                InAppNotification = p.InAppNotification
+                InAppNotification = p.InAppNotification,
+                AlertInfoSeverity = (int)p.Severity,
+                AlertInfoCertainty = (int)p.Certainty
             }).ToList();
 
             _logger.LogInformation("Found {Count} alert preferences for UserOid: {UserOid}", areaDescs.Count, request.UserOid);
@@ -67,8 +69,11 @@ namespace UserService.Handlers
                 .Where(x =>
                     x.User == userDAO &&
                     x.AreaDesc == request.AreaDesc &&
+                    x.SpecificAreaDesc == request.SpecificAreaDesc &&
                     x.EmailNotification == request.EmailNotification &&
-                    x.InAppNotification == request.InAppNotification
+                    x.InAppNotification == request.InAppNotification &&
+                    x.Severity == (CAP.AlertInfoSeverity)request.AlertInfoSeverity &&
+                    x.Certainty == (CAP.AlertInfoCertainty)request.AlertInfoCertainty
                 )
                 .FirstOrDefault();
 
@@ -82,8 +87,11 @@ namespace UserService.Handlers
             UserAlertPreferenceDAO newPreference = new UserAlertPreferenceDAO(uow)
             {
                 AreaDesc = request.AreaDesc,
+                SpecificAreaDesc = request.SpecificAreaDesc,
                 EmailNotification = request.EmailNotification,
                 InAppNotification = request.InAppNotification,
+                Severity = (CAP.AlertInfoSeverity)request.AlertInfoSeverity,
+                Certainty = (CAP.AlertInfoCertainty)request.AlertInfoCertainty,
                 User = userDAO
             };
 

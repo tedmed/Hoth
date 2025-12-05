@@ -49,6 +49,19 @@ public class CAPApiClient(HttpClient httpClient)
         return specificAreasDescs?.ToArray() ?? [];
     }
 
+    public async Task<Tuple<string, string>[]> GetAllAvailableSpecificRegionsAsync(CancellationToken cancellationToken = default)
+    {
+        List<Tuple<string,string>> specificAreasDescs = new();
+        await foreach (var alertInfo in httpClient.GetFromJsonAsAsyncEnumerable<Tuple<string, string>>($"/CAP/AllAvailableSpecificRegions", cancellationToken))
+        {
+            if (alertInfo is not null)
+            {
+                specificAreasDescs.Add(alertInfo);
+            }
+        }
+        return specificAreasDescs?.ToArray() ?? [];
+    }
+
     public async Task<AlertInfoDTO[]> GetUserSpecificAlertsAsync(CancellationToken cancellationToken = default)
     {
         List<AlertInfoDTO>? AlertInfos = null;
