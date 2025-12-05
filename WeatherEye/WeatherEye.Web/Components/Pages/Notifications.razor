@@ -18,53 +18,6 @@
 else
 {
     <div class="d-flex flex-column gap-3">
-        <MudPaper Class="pa-4 ma-2 d-flex align-center justify-space-between" Elevation="1">
-            <div class="d-flex flex-column flex-sm-row gap-4 align-sm-center" style="width: 100%">
-
-                @* Informace o oblasti *@
-                <div style="min-width: 200px;">
-                    <MudText Typo="Typo.caption">Oblast</MudText>
-                    <MudText Typo="Typo.subtitle1" Color="Color.Primary"><b>Hlavní město Praha</b></MudText>
-                </div>
-
-                @* Informace o filtrech *@
-                <div class="d-flex gap-4">
-                    <div>
-                        <MudText Typo="Typo.caption">Událost</MudText>
-                        <MudText Typo="Typo.body2">Sněžení</MudText>
-                    </div>
-                    <div>
-                        <MudText Typo="Typo.caption">Severity</MudText>
-                        <MudText Typo="Typo.body2">Všechny</MudText>
-                    </div>
-                </div>
-
-                @* Ikony pro kanály (App/Email) *@
-                <div class="d-flex gap-2 align-center ml-sm-auto">
-                    @if (true)
-                    {
-                        <MudTooltip Text="Notifikace do aplikace">
-                            <MudIcon Icon="@Icons.Material.Filled.Smartphone" Color="Color.Primary" />
-                        </MudTooltip>
-                    }
-                    @if (true)
-                    {
-                        <MudTooltip Text="Notifikace na email">
-                            <MudIcon Icon="@Icons.Material.Filled.Email" Color="Color.Primary" />
-                        </MudTooltip>
-                    }
-                </div>
-            </div>
-
-            @* Akční tlačítka vpravo *@
-            <div class="d-flex gap-2 pl-4 border-l ml-4">
-                <MudTooltip Text="@(filterBlocks.Any(b => b.IsEditing) ? "Nejprve dokončete rozdělanou úpravu" : "Upravit")">
-                    <MudIconButton Icon="@Icons.Material.Filled.Edit"
-                                   Color="Color.Default"
-                                   Disabled="@(filterBlocks.Any(b => b.IsEditing))"/>
-                </MudTooltip>
-            </div>
-        </MudPaper>
         @foreach (var block in filterBlocks)
         {
             @if (block.IsEditing)
@@ -76,7 +29,8 @@ else
                             <MudText Typo="Typo.h6">@(block.IsNew ? "Nová notifikace" : "Úprava notifikace")</MudText>
                         </MudItem>
 
-                        <MudItem xs="12" sm="6">
+
+                        <MudItem xs="12" sm="@(string.IsNullOrWhiteSpace(block.SelectedRegion) ? 12 : 6)">
                             <MudSelect T="string" Label="Oblast" @bind-Value="block.SelectedRegion" Clearable="true" Required="true" HelperText="Vyberte lokalitu">
                                 @foreach (var region in AvailableRegions)
                                 {
@@ -84,21 +38,34 @@ else
                                 }
                             </MudSelect>
                         </MudItem>
-
+                        @if (string.IsNullOrWhiteSpace(block.SelectedRegion) == false)
+                        {
+                            <MudItem xs="12" sm="6">
+                                <MudSelect T="string" Label="Specifická oblast" Clearable="true" @bind-Value="block.SelectedSpecificRegion">
+                                    @foreach (var region in FilteredSpecificRegions)
+                                    {
+                                        <MudSelectItem Value="@region">@region</MudSelectItem>
+                                    }
+                                </MudSelect>
+                            </MudItem>
+                        }
                         <MudItem xs="12" sm="6">
-                            <MudSelect T="string" Label="Typ události" @bind-Value="block.SelectedEvent">
-                                <MudSelectItem Value="@("Vsechny")">Všechny</MudSelectItem>
-                                <MudSelectItem Value="@("Silny_vitr")">Silný vítr</MudSelectItem>
-                                <MudSelectItem Value="@("Snezeni")">Sněžení/Ledovka</MudSelectItem>
+                            <MudSelect T="CAP.AlertInfoSeverity" Label="Minimální síla hrozby" @bind-Value="block.SelectedSeverity">
+                                <MudSelectItem Value=CAP.AlertInfoSeverity.Unknown>Všechny</MudSelectItem>
+                                <MudSelectItem Value=CAP.AlertInfoSeverity.Minor>Minor (Mírná)</MudSelectItem>
+                                <MudSelectItem Value=CAP.AlertInfoSeverity.Moderate>Moderate (Střední)</MudSelectItem>
+                                <MudSelectItem Value=CAP.AlertInfoSeverity.Severe>Severe (Velká)</MudSelectItem>
+                                <MudSelectItem Value=CAP.AlertInfoSeverity.Extreme>Extreme (Extrémní)</MudSelectItem>
                             </MudSelect>
                         </MudItem>
 
                         <MudItem xs="12" sm="6">
-                            <MudSelect T="string" Label="Síla hrozby" @bind-Value="block.SelectedSeverity">
-                                <MudSelectItem Value="@("Vsechny")">Všechny</MudSelectItem>
-                                <MudSelectItem Value="@("Minor")">Minor (Mírná)</MudSelectItem>
-                                <MudSelectItem Value="@("Moderate")">Moderate (Střední)</MudSelectItem>
-                                <MudSelectItem Value="@("Severe")">Severe (Velká)</MudSelectItem>
+                            <MudSelect T="CAP.AlertInfoCertainty" Label="Minimální pravděpodobnost hrozby" @bind-Value="block.SelectedCertainty">
+                                <MudSelectItem Value=CAP.AlertInfoCertainty.Unknown>Všechny</MudSelectItem>
+                                <MudSelectItem Value=CAP.AlertInfoCertainty.Unlikely>Unlikely (Nepravděpodobná)</MudSelectItem>
+                                <MudSelectItem Value=CAP.AlertInfoCertainty.Possible>Possible (Možná)</MudSelectItem>
+                                <MudSelectItem Value=CAP.AlertInfoCertainty.Likely>Likely (Pravděpodobná)</MudSelectItem>
+                                <MudSelectItem Value=CAP.AlertInfoCertainty.Observed>Observed (Pozorovaná)</MudSelectItem>
                             </MudSelect>
                         </MudItem>
 
@@ -204,6 +171,29 @@ else
 
 @code {
     private string[] AvailableRegions = Array.Empty<string>();
+    private Tuple<string, string>[] AvailableSpecificRegions = Array.Empty<Tuple<string, string>>();
+    private string[] FilteredSpecificRegions
+    {
+        get
+        {
+            if (filterBlocks.Any(x => x.IsEditing))
+            {
+                var area = filterBlocks.First(x => x.IsEditing).SelectedRegion ?? "";
+                if (string.IsNullOrWhiteSpace(area) == false)
+                {
+                    return AvailableSpecificRegions.Where(x => x.Item1 == area).Select(x => x.Item2).ToArray();
+                }
+                else
+                {
+                    return AvailableSpecificRegions.Select(x => x.Item2).ToArray();
+                }
+            }
+            else
+            {
+                return AvailableSpecificRegions.Select(x => x.Item2).ToArray();
+            }
+        }
+    }
     private List<FilterBlock> filterBlocks = new();
     private bool _isLoading = true;
     private bool _isProcessing = false;
@@ -212,9 +202,15 @@ else
     public class FilterBlock
     {
         public Guid? Oid { get; set; }
-        public string SelectedRegion { get; set; } = "";
+        public string SelectedRegion { get; set 
+            {
+                field = value;
+                SelectedSpecificRegion = "";
+            } } = "";
+        public string SelectedSpecificRegion { get; set; } = "";
         public string SelectedEvent { get; set; } = "Vsechny";
-        public string SelectedSeverity { get; set; } = "Vsechny";
+        public CAP.AlertInfoSeverity SelectedSeverity { get; set; } = CAP.AlertInfoSeverity.Unknown;
+        public CAP.AlertInfoCertainty SelectedCertainty { get; set; } = CAP.AlertInfoCertainty.Unknown;
         public bool Email { get; set; }
         public bool MobApp { get; set; }
 
@@ -231,6 +227,7 @@ else
         public void RestoreFrom(FilterBlock backup)
         {
             this.SelectedRegion = backup.SelectedRegion;
+            this.SelectedSpecificRegion = backup.SelectedSpecificRegion;
             this.SelectedEvent = backup.SelectedEvent;
             this.SelectedSeverity = backup.SelectedSeverity;
             this.Email = backup.Email;
@@ -247,10 +244,12 @@ else
         {
             _isLoading = true;
             var regionsTask = CapApi.GetAvailableRegionsAsync();
+            var specificRegionsTask = CapApi.GetAllAvailableSpecificRegionsAsync();
             var preferencesTask = UserApi.GetAlertPreferenceAsync();
 
-            await Task.WhenAll(regionsTask, preferencesTask);
+            await Task.WhenAll(regionsTask, preferencesTask, specificRegionsTask);
             AvailableRegions = await regionsTask;
+            AvailableSpecificRegions = await specificRegionsTask;
             var alertPreferences = await preferencesTask;
 
             foreach (var item in alertPreferences)
@@ -259,8 +258,11 @@ else
                 {
                     Oid = string.IsNullOrEmpty(item.PreferenceOid) ? (Guid?)null : Guid.Parse(item.PreferenceOid),
                     SelectedRegion = item.AreaDesc,
+                    SelectedSpecificRegion = item.SpecificAreaDesc,
                     Email = item.EmailNotification,
                     MobApp = item.InAppNotification,
+                    SelectedCertainty = (CAP.AlertInfoCertainty)item.AlertInfoCertainty,
+                    SelectedSeverity = (CAP.AlertInfoSeverity)item.AlertInfoSeverity,
                     // Defaultně načtené položky nejsou v režimu editace
                     IsEditing = false
                 });
@@ -315,7 +317,7 @@ else
             // Pokud API vrací objekt s novým OID, je nutné ho zde přiřadit!
 
             // Příklad: var result = await UserApi.SaveAlertPreference(...)
-            await UserApi.SaveAlertPreference(block.SelectedRegion, block.Email, block.MobApp);
+            await UserApi.SaveAlertPreference(block.SelectedRegion, block.SelectedSpecificRegion, block.SelectedSeverity, block.SelectedCertainty, block.Email, block.MobApp);
 
             // Simuace získání ID pokud je to nový záznam (pokud to vaše API vrací, doplňte to sem)
             // if(block.Oid == null) block.Oid = result.NewId;

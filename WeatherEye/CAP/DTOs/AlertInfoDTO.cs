@@ -10,9 +10,9 @@ namespace CAP.DTOs
     {
         public string SenderName { get; set; } = string.Empty;
         public string Event { get; set; } = string.Empty;
-        public string Urgency { get; set; } = string.Empty;
-        public string Severity { get; set; } = string.Empty;
-        public string Certainty { get; set; } = string.Empty;
+        public int Urgency { get; set; } = (int)AlertInfoUrgency.Unknown;
+        public int Severity { get; set; } = (int)AlertInfoSeverity.Unknown;
+        public int Certainty { get; set; } = (int)AlertInfoCertainty.Unknown;
         public string Language { get; set; } = string.Empty;
         public DateTime Onset { get; set; }
         public DateTime Expires { get; set; }

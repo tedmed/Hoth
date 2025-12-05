@@ -6,7 +6,8 @@
         public string PreferenceOid { get; set; }
         public string AreaDesc { get; set; }
         public string SpecificAreaDesc { get; set; }
-
+        public int AlertInfoCertainty { get; set; }
+        public int AlertInfoSeverity { get; set; }
         public bool EmailNotification { get; set; }
         public bool InAppNotification { get; set; }
         public AlertPreferenceDTO()

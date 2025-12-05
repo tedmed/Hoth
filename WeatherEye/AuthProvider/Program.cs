@@ -9,6 +9,7 @@ using DevExpress.ExpressApp.Xpo;
 using DevExpress.Persistent.BaseImpl.PermissionPolicy;
 using DevExpress.Xpo;
 using DevExpress.Xpo.DB;
+using DevExpress.Xpo.Metadata;
 using JasperFx.MultiTenancy;
 using OpenTelemetry.Trace;
 using System.Drawing.Text;
@@ -74,7 +75,16 @@ var finalConnectionString =
         conStringParsed["Database"]
     );
 
-XpoDefault.DataLayer = XpoDefault.GetDataLayer(finalConnectionString, AutoCreateOption.DatabaseAndSchema);
+XpoDefault.Session = null;
+string conn = finalConnectionString;
+conn = XpoDefault.GetConnectionPoolString(conn);
+XPDictionary dict = new ReflectionDictionary();
+IDataStore store = XpoDefault.GetConnectionProvider(conn, AutoCreateOption.DatabaseAndSchema);
+dict.GetDataStoreSchema(System.Reflection.Assembly.GetExecutingAssembly());
+IDataLayer dl = new ThreadSafeDataLayer(dict, store);
+
+XpoDefault.DataLayer = dl;
+XpoDefault.Session = null;
 
 builder.AddServiceDefaults();
 

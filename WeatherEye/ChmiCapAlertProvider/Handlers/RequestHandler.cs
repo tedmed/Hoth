@@ -76,5 +76,14 @@ namespace ChmiCapAlertProvider.Handlers
 
             return new AlertSpecificAreaResponse(uow.Query<SpecificAreaDAO>().Where(x => x.Area.AreaDesc == request.AreaDesc).Select(x => x.Description).ToList());
         }
+
+        [WolverineHandler]
+        public AlertAllSpecificAreasResponse HandleAllSpecificAreasRequest(AlertAllSpecificAreasRequest request)
+        {
+            _logger.LogInformation("Handling AlertSpecificAreaRequest");
+            using UnitOfWork uow = new();
+
+            return new AlertAllSpecificAreasResponse(uow.Query<SpecificAreaDAO>().Select(x => new Tuple<string,string>(x.Area.AreaDesc,x.Description)).ToList());
+        }
     }
 }

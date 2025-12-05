@@ -18,9 +18,9 @@ namespace ChmiCapAlertProvider.DAO
                 {
                     SenderName = this.SenderName,
                     Event = this.Event,
-                    Urgency = Enum.GetName(typeof(AlertInfoUrgency), this.Urgency) ?? string.Empty,
-                    Severity = Enum.GetName(typeof(AlertInfoSeverity), this.Severity) ?? string.Empty,
-                    Certainty = Enum.GetName(typeof(AlertInfoCertainty), this.Certainty) ?? string.Empty,
+                    Urgency = (int)this.Urgency,
+                    Severity = (int)this.Severity,
+                    Certainty = (int)this.Certainty,
                     Language = this.Language,
                     Onset = this.Onset ?? DateTime.MinValue,
                     Expires = this.Expires ?? DateTime.MinValue,

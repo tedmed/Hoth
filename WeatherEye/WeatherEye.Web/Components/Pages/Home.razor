@@ -68,7 +68,7 @@
                          Color="@GetSeverityColor(context.Severity)"
                          Size="Size.Small"
                          Variant="Variant.Filled">
-                    @context.Severity
+                    @GetSeverityText(context.Severity)
                 </MudChip>
             </MudTd>
         </RowTemplate>
@@ -101,7 +101,7 @@
 
                 Warnings = alerts
                     // 1. KROK: Vyfiltrujeme jen ty, co jsou v našem seznamu "důležitých"
-                    .Where(x => importantSeverities.Contains(x.Severity, StringComparer.OrdinalIgnoreCase))
+                    .Where(x => x.Severity < (int)CAP.AlertInfoSeverity.Minor)
                     // 2. KROK: Seřadíme podle data začátku (nejnovější nahoře)
                     .OrderByDescending(x => x.Onset)
                     .DistinctBy(x => new { x.AreaDesc, x.Description })
@@ -120,25 +120,31 @@
     }
 
     // NOVÁ METODA: Řeší logiku barev mimo HTML
-    private Color GetSeverityColor(string? severity)
+    private Color GetSeverityColor(int? severity)
     {
-        if (string.IsNullOrEmpty(severity))
+        if (severity is null)
             return Color.Default;
 
         // Porovnání bez ohledu na velká/malá písmena
-        if (string.Equals(severity, "Extreme", StringComparison.OrdinalIgnoreCase) ||
-            string.Equals(severity, "Severe", StringComparison.OrdinalIgnoreCase) ||
-            string.Equals(severity, "High", StringComparison.OrdinalIgnoreCase))
+        if (
+            severity == (int)CAP.AlertInfoSeverity.Extreme ||
+            severity == (int)CAP.AlertInfoSeverity.Severe
+            )
         {
             return Color.Error;
         }
 
-        if (string.Equals(severity, "Moderate", StringComparison.OrdinalIgnoreCase))
+        if (severity == (int)CAP.AlertInfoSeverity.Moderate)
         {
             return Color.Warning;
         }
 
         // Pro Minor, Unknown atd.
         return Color.Info;
+    }
+
+    private string GetSeverityText(int? severity)
+    {
+        return Enum.GetName<CAP.AlertInfoSeverity>((CAP.AlertInfoSeverity)(severity ?? 0)) ?? "";
     }
 }

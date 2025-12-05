@@ -76,8 +76,11 @@ namespace WeatherEye.API.Controllers
                 var response = await bus.InvokeAsync<SaveAlertPreferenceResponse>(new MessagingContracts.SaveAlertPreferenceRequest(
                     UserResponse?.UserOid ?? Guid.Empty,
                     preference.AreaDesc,
+                    preference.SpecificAreaDesc,
                     preference.EmailNotification,
-                    preference.InAppNotification
+                    preference.InAppNotification,
+                    preference.AlertInfoCertainty,
+                    preference.AlertInfoSeverity
 
                     ));
                 return Ok(response);

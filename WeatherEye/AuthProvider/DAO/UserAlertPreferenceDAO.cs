@@ -37,7 +37,7 @@ namespace UserService.DAO
         [Size(1000)]
         public string SpecificAreaDesc
         {
-            get { return fAreaDesc; }
+            get { return fSpecificAreaDesc; }
             set { SetPropertyValue<string>(nameof(SpecificAreaDesc), ref fSpecificAreaDesc, value); }
         }
 
@@ -54,6 +54,19 @@ namespace UserService.DAO
         {
             get { return fInAppNotification; }
             set { SetPropertyValue<bool>(nameof(InAppNotification), ref fInAppNotification, value); }
+        }
+
+        private CAP.AlertInfoSeverity fSeverity;
+        public CAP.AlertInfoSeverity Severity
+        {
+            get { return fSeverity; }
+            set { SetPropertyValue<CAP.AlertInfoSeverity>(nameof(Severity), ref fSeverity, value); }
+        }
+        private CAP.AlertInfoCertainty fCertainty;
+        public CAP.AlertInfoCertainty Certainty
+        {
+            get { return fCertainty; }
+            set { SetPropertyValue<CAP.AlertInfoCertainty>(nameof(Certainty), ref fCertainty, value); }
         }
 
         private UserDAO fUser;
