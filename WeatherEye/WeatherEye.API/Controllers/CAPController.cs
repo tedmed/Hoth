@@ -126,5 +126,19 @@ namespace WeatherEye.API.Controllers
             var res = await bus.InvokeAsync<AlertAllSpecificAreasResponse>(new AlertAllSpecificAreasRequest());
             return Ok(res.specificRegions);
         }
+
+        [HttpPost("ResendAlerts")]
+        public async Task<IActionResult> ResendAlerts([FromQuery] string secret)
+        {
+            if (secret != "prosím")
+            {
+                return BadRequest();
+            }
+
+            using IServiceScope scope = serviceScopeFactory.CreateScope();
+            var bus = scope.ServiceProvider.GetRequiredService<IMessageContext>();
+            await bus.PublishAsync(new AlertsUpdated());
+            return Ok();
+        }
     }
 }
