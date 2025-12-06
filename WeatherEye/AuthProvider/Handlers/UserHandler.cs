@@ -126,5 +126,23 @@ namespace UserService.Handlers
                 return new UserEmailResponse(string.Empty);
             }
         }
+
+        [WolverineHandler]
+        public UserMobAppTokenResponse UserMobAppTokenRequestHandler(UserMobAppTokenRequest request)
+        {
+            _logger.LogInformation("UserMobAppTokenRequestHandler called with UserOid: {UserOid}", request.UserOid);
+            using UnitOfWork uow = new UnitOfWork();
+            UserDAO? userDAO = uow.GetObjectByKey<UserDAO>(request.UserOid);
+            if (userDAO is not null)
+            {
+                _logger.LogInformation("User found: {Username}, MobAppDeviceId: {MobAppDeviceId}", userDAO.Username, userDAO.MobAppDeviceId);
+                return new UserMobAppTokenResponse(userDAO.MobAppDeviceId ?? string.Empty);
+            }
+            else
+            {
+                _logger.LogWarning("User not found with Oid: {UserOid}", request.UserOid);
+                return new UserMobAppTokenResponse(string.Empty);
+            }
+        }
     }
 }

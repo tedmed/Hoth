@@ -22,6 +22,9 @@ namespace MessagingContracts
     public record UserEmailRequest(Guid UserOid);
     public record UserEmailResponse(string Email);
 
+    public record UserMobAppTokenRequest(Guid UserOid);
+    public record UserMobAppTokenResponse(string MobAppId);
+
     public record UsersOidRequest();
     public record UsersOidResponse(IList<Guid> Users);
 
