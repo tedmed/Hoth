@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<UserSecretsId>dotnet-MobileNotificationService-54e649ef-bd1b-4dd9-b8ac-286f9fb71dab</UserSecretsId>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.0" />
+		<PackageReference Include="WolverineFx" Version="5.2.0" />
+		<PackageReference Include="WolverineFx.RabbitMQ" Version="5.2.0" />
+		<PackageReference Include="FirebaseAdmin" Version="3.4.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\WeatherEye.ServiceDefaults\WeatherEye.ServiceDefaults.csproj" />
+		<ProjectReference Include="..\CAP\CAP.csproj" />
+		<ProjectReference Include="..\MessagingContracts\MessagingContracts.csproj" />
+		<ProjectReference Include="..\Preferences.DTO\Preferences.DTO.csproj" />
+		<ProjectReference Include="..\WeatherEye.ServiceDefaults\WeatherEye.ServiceDefaults.csproj" />
+	</ItemGroup>
+</Project>

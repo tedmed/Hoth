@@ -177,4 +177,9 @@ builder.AddProject<Projects.EmailNotificationService>("emailnotificationservice"
 
 
 
+builder.AddProject<Projects.MobileNotificationService>("mobilenotificationservice");
+
+
+
+
 builder.Build().Run();

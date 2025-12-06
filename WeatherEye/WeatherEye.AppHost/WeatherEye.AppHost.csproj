@@ -14,6 +14,7 @@
     <ProjectReference Include="..\AuthProvider\UserService.csproj" />
     <ProjectReference Include="..\ChmiCapAlertProvider\ChmiCapAlertProvider.csproj" />
     <ProjectReference Include="..\EmailNotificationService\EmailNotificationService.csproj" />
+    <ProjectReference Include="..\MobileNotificationService\MobileNotificationService.csproj" />
     <ProjectReference Include="..\WeatherEye.API\WeatherEye.API.csproj" />
     <ProjectReference Include="..\WeatherEye.Web\WeatherEye.Web.csproj" />
   </ItemGroup>

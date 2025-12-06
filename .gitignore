@@ -134,3 +134,4 @@ _NCrunch*
 /.vs
 /WeatherEye/.vs/WeatherEye
 /WeatherEye/.cr/
+/WeatherEye/MobileNotificationService/firebase-adminsdk.json
