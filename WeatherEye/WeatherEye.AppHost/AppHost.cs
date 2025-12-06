@@ -177,9 +177,14 @@ builder.AddProject<Projects.EmailNotificationService>("emailnotificationservice"
 
 
 
-builder.AddProject<Projects.MobileNotificationService>("mobilenotificationservice");
-
-
+builder.AddProject<Projects.MobileNotificationService>("mobilenotificationservice")
+    .WithReference(rabbitmq)
+    .WaitFor(rabbitmq)
+    .PublishAsDockerComposeService((resource, service) =>
+    {
+        service.Name = "mobilenotificationservice";
+        service.Restart = "unless-stopped";
+    });
 
 
 builder.Build().Run();
